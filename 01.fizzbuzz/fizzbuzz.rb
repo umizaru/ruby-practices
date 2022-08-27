@@ -1,5 +1,4 @@
-x = 1
-while  x <= 20
+(1..20).each do |x|
     if x % 15 == 0
         puts "FizzBuzz"
     elsif x % 5 == 0
@@ -11,4 +10,3 @@ while  x <= 20
     end
     x += 1
 end
-
