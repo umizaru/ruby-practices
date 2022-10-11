@@ -2,10 +2,10 @@
 
 require 'optparse'
 
-number_of_columns = 3
-between_columns = 4
+NUMBER_OF_COLUMNS = 3
+BETWEEN_COLUMNS = 4
 
-argument = ARGV.getopts('a')
+option = ARGV.getopts('a')
 
 current_dir_files =
   if argument['a']
