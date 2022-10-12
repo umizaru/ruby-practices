@@ -5,19 +5,19 @@ require 'optparse'
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 4
 
-option = ARGV.getopts('a')
+options = ARGV.getopts('a')
 
 current_dir_files =
-  if argument['a']
+  if options['a']
     Dir.glob(['.*', '*'])
   else
     Dir.glob('*')
   end
 
 number_of_files = current_dir_files.size
-rows = (number_of_files.to_f / number_of_columns).ceil
+rows = (number_of_files.to_f / NUMBER_OF_COLUMNS).ceil
 
-width = current_dir_files.map(&:size).max + between_columns
+width = current_dir_files.map(&:size).max + BETWEEN_COLUMNS
 current_dir_files = current_dir_files.map { |x| x.ljust(width) }
 
 rows.times do |i|
