@@ -5,16 +5,16 @@ require 'optparse'
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 4
 
-ARGV.getopts('r')
+options = ARGV.getopts('r')
 current_dir_files = Dir.glob('*')
-reverse_current_dir_files = current_dir_files.reverse
+current_dir_files = current_dir_files.reverse if options['r']
 
-number_of_files = reverse_current_dir_files.size
+number_of_files = current_dir_files.size
 rows = (number_of_files.to_f / NUMBER_OF_COLUMNS).ceil
 
-width = reverse_current_dir_files.map(&:size).max + BETWEEN_COLUMNS
-reverse_current_dir_files = reverse_current_dir_files.map { |x| x.ljust(width) }
+width = current_dir_files.map(&:size).max + BETWEEN_COLUMNS
+current_dir_files = current_dir_files.map { |x| x.ljust(width) }
 
 rows.times do |i|
-  puts reverse_current_dir_files.values_at(i, i + rows, i + rows * 2).join(' ')
+  puts current_dir_files.values_at(i, i + rows, i + rows * 2).join(' ')
 end
