@@ -2,20 +2,19 @@
 
 require 'optparse'
 
-number_of_columns = 3
+NUMBER_OF_COLUMNS = 3
+BETWEEN_COLUMNS = 4
 
-opt = ARGV.getopts('a', 'l', 'r')
-array = opt.values
-
-current_dir_files =
-  if array[0].to_s == 'true'
-    Dir.glob(['*', '.*'])
-  else
-    Dir.glob('*')
-  end
+options = ARGV.getopts('r')
+current_dir_files = Dir.glob('*')
+current_dir_files = current_dir_files.reverse if options['r']
 
 number_of_files = current_dir_files.size
-data_of_rows = (number_of_files.to_f / number_of_columns).ceil
-data_of_rows.times do |i|
-  puts current_dir_files.values_at(i, i + data_of_rows, i + data_of_rows * 2).join(' ')
+rows = (number_of_files.to_f / NUMBER_OF_COLUMNS).ceil
+
+width = current_dir_files.map(&:size).max + BETWEEN_COLUMNS
+current_dir_files = current_dir_files.map { |x| x.ljust(width) }
+
+rows.times do |i|
+  puts current_dir_files.values_at(i, i + rows, i + rows * 2).join(' ')
 end
