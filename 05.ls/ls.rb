@@ -5,28 +5,25 @@ require 'etc'
 require 'time'
 require 'debug'
 
-PERMISSION_PATTERN = {'0' => '---', '1' => '--x', '2' => '-w-', '3' => '-wx', '4' => 'r--', '5' => 'r-x', '6' => 'rw-', '7' => 'rwx'}.freeze
+PERMISSION_PATTERNS = {'0' => '---', '1' => '--x', '2' => '-w-', '3' => '-wx', '4' => 'r--', '5' => 'r-x', '6' => 'rw-', '7' => 'rwx'}.freeze
 
 options = ARGV.getopts('l')
 current_dir_files = Dir.glob('*')
 current_dir_pass = Dir.pwd
 @each_data_array = Array.new
 
-# ファイルの種類
-def type
+# ファイルのタイプとパーミッション
+def type_and_permission
   if @file_stat.ftype == "file"
-    @each_data_array << "-"
+    file_type = "-"
   elsif @file_stat.ftype == "directory"
-    @each_data_array << "d"
+    file_type = "d"
   elsif @file_stat.ftype == "link"
-    @each_data_array << "l"
+    file_type = "l"
   end
-end
-
-# パーミッション
-def permission
-  permission_number = @file_stat.mode.to_s(8).slice(3..5)
-  @each_data_array << permission_number.gsub(/[01234567]/,PERMISSION_PATTERN)
+permission_number = @file_stat.mode.to_s(8).slice(3..5)
+file_permission = permission_number.gsub(/[01234567]/,PERMISSION_PATTERNS)
+@each_data_array << file_type + file_permission
 end
 
 # ハードリンクの数
@@ -60,13 +57,13 @@ end
 
 # ファイル名
 def name
-  @each_data_array << "x"
+  @each_data_array << @file_name
 end
 
 current_dir_files.each do |x|
   @file_stat = File.stat("#{current_dir_pass}/#{x}")
-  type
-  permission
+  @file_name = "#{x}"
+  type_and_permission
   hardlink
   owner
   size
