@@ -21,7 +21,9 @@ def type_and_permission
   elsif @file_stat.ftype == "link"
     file_type = "l"
   end
-permission_number = @file_stat.mode.to_s(8).slice(3..5)
+
+permission_number = @file_stat.mode.to_s(8)
+permission_number = permission_number.split('').last(3).join('')
 file_permission = permission_number.gsub(/[01234567]/,PERMISSION_PATTERNS)
 @each_data_array << file_type + file_permission
 end
