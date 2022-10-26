@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-# 下処理
 require 'optparse'
 require 'etc'
 require 'time'
-require 'debug'
 
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 4
@@ -15,10 +13,9 @@ current_dir_path = Dir.pwd
 number_of_files = current_dir_files.size
 options = ARGV.getopts('l')
 
-def type_permission(current_dir_files,current_dir_path)
+def type_permission(current_dir_files, current_dir_path)
   type_permission = []
   file_stats = []
-
   current_dir_files.each do |x|
     file_stats = File.stat("#{current_dir_path}/#{x}")
     case file_stats.ftype
@@ -37,7 +34,7 @@ def type_permission(current_dir_files,current_dir_path)
   type_permission
 end
 
-def hardlink(current_dir_files,current_dir_path)
+def hardlink(current_dir_files, current_dir_path)
   hardlink = []
   file_stats = []
   current_dir_files.each do |x|
@@ -47,51 +44,44 @@ def hardlink(current_dir_files,current_dir_path)
   hardlink
 end
 
-def user(current_dir_files,current_dir_path)
+def user(current_dir_files, current_dir_path)
   user = []
   file_stats = []
-
   current_dir_files.each do |x|
     file_stats = File.stat("#{current_dir_path}/#{x}")
     user_name = Etc.getpwuid(file_stats.uid).name
     user << user_name
   end
-
   width_of_user = user.max.to_s.length
   user = user.map { |x| x.rjust(width_of_user) }
 end
 
-def group(current_dir_files,current_dir_path)
+def group(current_dir_files, current_dir_path)
   group = []
   file_stats = []
-
   current_dir_files.each do |x|
     file_stats = File.stat("#{current_dir_path}/#{x}")
     group_name = Etc.getgrgid(file_stats.gid).name
     group << group_name
   end
-
   width_of_group = group.max.to_s.length
   group = group.map { |x| x.rjust(width_of_group) }
 end
 
-def size(current_dir_files,current_dir_path)
+def size(current_dir_files, current_dir_path)
   size = []
   file_stats = []
-
   current_dir_files.each do |x|
     file_stats = File.stat("#{current_dir_path}/#{x}")
     size << file_stats.size
   end
-
   width_of_size = size.max.to_s.length
   size = size.map { |x| x.to_s.rjust(width_of_size) }
 end
 
-def month_data(current_dir_files,current_dir_path)
+def month_data(current_dir_files, current_dir_path)
   month_data = []
   file_stats = []
-
   current_dir_files.each do |x|
     file_stats = File.stat("#{current_dir_path}/#{x}")
     file_create_time = file_stats.atime
@@ -101,10 +91,9 @@ def month_data(current_dir_files,current_dir_path)
   month_data
 end
 
-def day_data(current_dir_files,current_dir_path)
+def day_data(current_dir_files, current_dir_path)
   day_data = []
   file_stats = []
-
   current_dir_files.each do |x|
     file_stats = File.stat("#{current_dir_path}/#{x}")
     file_create_time = file_stats.atime
@@ -114,10 +103,9 @@ def day_data(current_dir_files,current_dir_path)
   day_data
 end
 
-def minute_data(current_dir_files,current_dir_path)
+def minute_data(current_dir_files, current_dir_path)
   minute_data = []
   file_stats = []
-
   current_dir_files.each do |x|
     file_stats = File.stat("#{current_dir_path}/#{x}")
     file_create_time = file_stats.atime
@@ -130,33 +118,33 @@ end
 def name(current_dir_files)
   name = []
   current_dir_files.each do |x|
-  name << x.to_s
+    name << x.to_s
   end
   name
 end
 
-def each_data(current_dir_files,current_dir_path)
+def each_data(current_dir_files, current_dir_path)
   each_data = []
   number_of_files = current_dir_files.size
-  number_of_files.times {|i|
-  each_data <<
-    {
-      type_permission: type_permission(current_dir_files,current_dir_path)[i],
-      hardlink: hardlink(current_dir_files,current_dir_path)[i],
-      user: user(current_dir_files,current_dir_path)[i],
-      group: group(current_dir_files,current_dir_path)[i],
-      size: size(current_dir_files,current_dir_path)[i],
-      month_data: month_data(current_dir_files,current_dir_path)[i],
-      day_data: day_data(current_dir_files,current_dir_path)[i],
-      minute_data: minute_data(current_dir_files,current_dir_path)[i],
-      name: name(current_dir_files)[i]
-    }
-  }
+  number_of_files.times do |i|
+    each_data <<
+      {
+        type_permission: type_permission(current_dir_files, current_dir_path)[i],
+        hardlink: hardlink(current_dir_files, current_dir_path)[i],
+        user: user(current_dir_files, current_dir_path)[i],
+        group: group(current_dir_files, current_dir_path)[i],
+        size: size(current_dir_files, current_dir_path)[i],
+        month_data: month_data(current_dir_files, current_dir_path)[i],
+        day_data: day_data(current_dir_files, current_dir_path)[i],
+        minute_data: minute_data(current_dir_files, current_dir_path)[i],
+        name: name(current_dir_files)[i]
+      }
+  end
   each_data
 end
 
-def all_data(current_dir_files,current_dir_path)
-  each_data(current_dir_files,current_dir_path).each do |n|
+def all_data(current_dir_files, current_dir_path)
+  each_data(current_dir_files, current_dir_path).each do |n|
     print "#{n[:type_permission]}  "
     print "#{n[:hardlink]} "
     print "#{n[:user]}  "
@@ -170,7 +158,7 @@ def all_data(current_dir_files,current_dir_path)
   end
 end
 
-def total(current_dir_files,current_dir_path)
+def total(current_dir_files, current_dir_path)
   block = []
   current_dir_files.each do |x|
     block << File.stat("#{current_dir_path}/#{x}").blocks
@@ -180,12 +168,12 @@ def total(current_dir_files,current_dir_path)
   print "\n"
 end
 
-def main_l(current_dir_files,current_dir_path)
-  total(current_dir_files,current_dir_path)
-  all_data(current_dir_files,current_dir_path)
+def main_l(current_dir_files, current_dir_path)
+  total(current_dir_files, current_dir_path)
+  all_data(current_dir_files, current_dir_path)
 end
 
-def main_none(current_dir_files,current_dir_path,number_of_files)
+def main_none(current_dir_files, number_of_files)
   rows = (number_of_files.to_f / NUMBER_OF_COLUMNS).ceil
   width = current_dir_files.map(&:size).max + BETWEEN_COLUMNS
   current_dir_files = current_dir_files.map { |x| x.ljust(width) }
@@ -195,7 +183,7 @@ def main_none(current_dir_files,current_dir_path,number_of_files)
 end
 
 if options['l']
-  main_l(current_dir_files,current_dir_path)
+  main_l(current_dir_files, current_dir_path)
 else
-  main_none(current_dir_files,current_dir_path,number_of_files)
+  main_none(current_dir_files, number_of_files)
 end
