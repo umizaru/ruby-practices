@@ -13,11 +13,57 @@ current_dir_path = Dir.pwd
 number_of_files = current_dir_files.size
 options = ARGV.getopts('l')
 
+# データを収集、整理するメソッド
+def collect_file_data(current_dir_files, current_dir_path,number_of_files)
+  file_name = []
+  size = []
+  filestat = []
+  hoge_data = []
+
+  current_dir_files.each do |x|
+    file_name << x.to_s
+    size << FileTest.size?(x.to_s)
+    filestat << File.stat("#{current_dir_path}/#{x}")
+  end
+
+  number_of_files.times do |i|
+    hoge_data <<
+      {
+        file_name: file_name[i],
+        size: size[i],
+        filestat: filestat[i]
+      }
+  end
+end
+
+file_data =  collect_file_data(current_dir_files, current_dir_path,number_of_files)
+
+# lオプション
+def option_l(file_data)
+  file_data.each do |n|
+    print "#{n[:type_permission]}  "
+    print "#{n[:hardlink]} "
+    print "#{n[:user]}  "
+    print "#{n[:group]}  "
+    print "#{n[:size]} "
+    print "#{n[:month_data]} "
+    print "#{n[:day_data]} "
+    print "#{n[:minute_data]} "
+    print (n[:name]).to_s
+    print "\n"
+  end
+end
+
+def main_l(current_dir_files, current_dir_path)
+  total(current_dir_files, current_dir_path)
+  all_data(current_dir_files, current_dir_path)
+end
+
+
 def type_permission(current_dir_files, current_dir_path)
   type_permission = []
   file_stats = []
   current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
     case file_stats.ftype
     when 'file'
       file_type = '-'
@@ -68,17 +114,6 @@ def group(current_dir_files, current_dir_path)
   group = group.map { |x| x.rjust(width_of_group) }
 end
 
-def size(current_dir_files, current_dir_path)
-  size = []
-  file_stats = []
-  current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
-    size << file_stats.size
-  end
-  width_of_size = size.max.to_s.length
-  size = size.map { |x| x.to_s.rjust(width_of_size) }
-end
-
 def month_data(current_dir_files, current_dir_path)
   month_data = []
   file_stats = []
@@ -115,48 +150,6 @@ def minute_data(current_dir_files, current_dir_path)
   minute_data
 end
 
-def name(current_dir_files)
-  name = []
-  current_dir_files.each do |x|
-    name << x.to_s
-  end
-  name
-end
-
-def each_data(current_dir_files, current_dir_path)
-  each_data = []
-  number_of_files = current_dir_files.size
-  number_of_files.times do |i|
-    each_data <<
-      {
-        type_permission: type_permission(current_dir_files, current_dir_path)[i],
-        hardlink: hardlink(current_dir_files, current_dir_path)[i],
-        user: user(current_dir_files, current_dir_path)[i],
-        group: group(current_dir_files, current_dir_path)[i],
-        size: size(current_dir_files, current_dir_path)[i],
-        month_data: month_data(current_dir_files, current_dir_path)[i],
-        day_data: day_data(current_dir_files, current_dir_path)[i],
-        minute_data: minute_data(current_dir_files, current_dir_path)[i],
-        name: name(current_dir_files)[i]
-      }
-  end
-  each_data
-end
-
-def all_data(current_dir_files, current_dir_path)
-  each_data(current_dir_files, current_dir_path).each do |n|
-    print "#{n[:type_permission]}  "
-    print "#{n[:hardlink]} "
-    print "#{n[:user]}  "
-    print "#{n[:group]}  "
-    print "#{n[:size]} "
-    print "#{n[:month_data]} "
-    print "#{n[:day_data]} "
-    print "#{n[:minute_data]} "
-    print (n[:name]).to_s
-    print "\n"
-  end
-end
 
 def total(current_dir_files, current_dir_path)
   block = []
