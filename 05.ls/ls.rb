@@ -3,6 +3,7 @@
 require 'optparse'
 require 'etc'
 require 'time'
+require 'debug'
 
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 4
@@ -12,13 +13,14 @@ current_dir_files = Dir.glob('*')
 current_dir_path = Dir.pwd
 number_of_files = current_dir_files.size
 options = ARGV.getopts('l')
+file_data = []
 
 # データを収集、整理するメソッド
 def collect_file_data(current_dir_files, current_dir_path,number_of_files)
   file_name = []
   size = []
   filestat = []
-  hoge_data = []
+  all_data = []
 
   current_dir_files.each do |x|
     file_name << x.to_s
@@ -27,143 +29,99 @@ def collect_file_data(current_dir_files, current_dir_path,number_of_files)
   end
 
   number_of_files.times do |i|
-    hoge_data <<
+    all_data <<
       {
         file_name: file_name[i],
         size: size[i],
         filestat: filestat[i]
       }
   end
+  all_data
 end
 
-file_data =  collect_file_data(current_dir_files, current_dir_path,number_of_files)
+each_data = collect_file_data(current_dir_files, current_dir_path, number_of_files)
 
 # lオプション
-def option_l(file_data)
-  file_data.each do |n|
-    print "#{n[:type_permission]}  "
-    print "#{n[:hardlink]} "
-    print "#{n[:user]}  "
-    print "#{n[:group]}  "
-    print "#{n[:size]} "
-    print "#{n[:month_data]} "
-    print "#{n[:day_data]} "
-    print "#{n[:minute_data]} "
-    print (n[:name]).to_s
-    print "\n"
+hardlink = []
+month_data = []
+day_data = []
+minute_data = []
+name = []
+file_type = []
+type_permission = []
+user = []
+group = []
+size = []
+hash_array = []
+block = []
+
+number_of_files.times do |n|
+case each_data[n][:filestat].ftype
+  when 'file'
+    file_type = '-'
+  when 'directory'
+    file_type = 'd'
+  when 'link'
+    file_type = 'l'
   end
+  permission_number = each_data[n][:filestat].mode.to_s(8)
+  permission_number = permission_number.split('').last(3).join('')
+  permission_symbol = permission_number.gsub(/[01234567]/, PERMISSION_PATTERNS)
+  type_permission << file_type + permission_symbol
 end
 
-def main_l(current_dir_files, current_dir_path)
-  total(current_dir_files, current_dir_path)
-  all_data(current_dir_files, current_dir_path)
+number_of_files.times do |n|
+  user_name = Etc.getpwuid(each_data[n][:filestat].uid).name
+  group_name = Etc.getgrgid(each_data[n][:filestat].gid).name
+  user << user_name
+  group << group_name
 end
 
-
-def type_permission(current_dir_files, current_dir_path)
-  type_permission = []
-  file_stats = []
-  current_dir_files.each do |x|
-    case file_stats.ftype
-    when 'file'
-      file_type = '-'
-    when 'directory'
-      file_type = 'd'
-    when 'link'
-      file_type = 'l'
-    end
-    permission_number = file_stats.mode.to_s(8)
-    permission_number = permission_number.split('').last(3).join('')
-    permission_symbol = permission_number.gsub(/[01234567]/, PERMISSION_PATTERNS)
-    type_permission << file_type + permission_symbol
-  end
-  type_permission
+number_of_files.times do |n|
+  hardlink << each_data[n][:filestat].nlink
+  month_data << each_data[n][:filestat].atime.strftime('%m')
+  day_data << each_data[n][:filestat].atime.strftime('%d')
+  minute_data << each_data[n][:filestat].atime.strftime('%H:%M')
+  size << each_data[n][:filestat].size
+  name << each_data[n][:file_name]
 end
 
-def hardlink(current_dir_files, current_dir_path)
-  hardlink = []
-  file_stats = []
-  current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
-    hardlink << file_stats.nlink
-  end
-  hardlink
+width_of_user = user.max.to_s.length
+width_of_group = group.max.to_s.length
+width_of_size = size.max.to_s.length
+
+user = user.map { |x| x.rjust(width_of_user) }
+group = group.map { |x| x.rjust(width_of_group) }
+size = size.map { |x| x.to_s.rjust(width_of_size) }
+
+number_of_files.times do |i|
+  block << each_data[n][:filestat].blocks
+  hash_array <<
+  {
+    type_permission: type_permission[i],
+    hardlink: hardlink[i],
+    user: user[i],
+    group: group[i],
+    size: size[i],
+    month_data: month_data[i],
+    day_data: day_data[i],
+    minute_data: minute_data[i],
+    name: name[i]
+  }
 end
 
-def user(current_dir_files, current_dir_path)
-  user = []
-  file_stats = []
-  current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
-    user_name = Etc.getpwuid(file_stats.uid).name
-    user << user_name
-  end
-  width_of_user = user.max.to_s.length
-  user = user.map { |x| x.rjust(width_of_user) }
-end
-
-def group(current_dir_files, current_dir_path)
-  group = []
-  file_stats = []
-  current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
-    group_name = Etc.getgrgid(file_stats.gid).name
-    group << group_name
-  end
-  width_of_group = group.max.to_s.length
-  group = group.map { |x| x.rjust(width_of_group) }
-end
-
-def month_data(current_dir_files, current_dir_path)
-  month_data = []
-  file_stats = []
-  current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
-    file_create_time = file_stats.atime
-    month_of_file_create_time = file_create_time.strftime('%m')
-    month_data << month_of_file_create_time
-  end
-  month_data
-end
-
-def day_data(current_dir_files, current_dir_path)
-  day_data = []
-  file_stats = []
-  current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
-    file_create_time = file_stats.atime
-    day_of_file_create_time = file_create_time.strftime('%d')
-    day_data << day_of_file_create_time
-  end
-  day_data
-end
-
-def minute_data(current_dir_files, current_dir_path)
-  minute_data = []
-  file_stats = []
-  current_dir_files.each do |x|
-    file_stats = File.stat("#{current_dir_path}/#{x}")
-    file_create_time = file_stats.atime
-    minutes_of_file_create_time = file_create_time.strftime('%H:%M')
-    minute_data << minutes_of_file_create_time
-  end
-  minute_data
-end
-
-
-def total(current_dir_files, current_dir_path)
-  block = []
-  current_dir_files.each do |x|
-    block << File.stat("#{current_dir_path}/#{x}").blocks
-  end
-  print 'total '
-  print block.inject(:+)
+print 'total ' + "#{block.inject(:+)}"
+hash_array.each do |n|
+  print "#{n[:type_permission]}  "
+  print "#{n[:hardlink]} "
+  print "#{n[:user]}  "
+  print "#{n[:group]}  "
+  print "#{n[:size]} "
+  print "#{n[:month_data]} "
+  print "#{n[:day_data]} "
+  print "#{n[:minute_data]} "
+  print (n[:name]).to_s
   print "\n"
-end
-
-def main_l(current_dir_files, current_dir_path)
-  total(current_dir_files, current_dir_path)
-  all_data(current_dir_files, current_dir_path)
 end
 
 def main_none(current_dir_files, number_of_files)
