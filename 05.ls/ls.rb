@@ -13,15 +13,14 @@ current_dir_files = Dir.glob('*')
 current_dir_path = Dir.pwd
 number_of_files = current_dir_files.size
 options = ARGV.getopts('l')
-file_data = []
 
-# データを収集、整理するメソッド
-def collect_file_data(current_dir_files, current_dir_path,number_of_files)
+# データ収集メソッド
+def collect_file_data(current_dir_files, current_dir_path, number_of_files)
+  file_data = []
   file_name = []
   size = []
   filestat = []
   all_data = []
-
   current_dir_files.each do |x|
     file_name << x.to_s
     size << FileTest.size?(x.to_s)
@@ -41,28 +40,18 @@ end
 
 each_data = collect_file_data(current_dir_files, current_dir_path, number_of_files)
 
-# lオプション
-hardlink = []
-month_data = []
-day_data = []
-minute_data = []
-name = []
-file_type = []
-type_permission = []
-user = []
-group = []
-size = []
-hash_array = []
-block = []
-
-number_of_files.times do |n|
-case each_data[n][:filestat].ftype
-  when 'file'
-    file_type = '-'
-  when 'directory'
-    file_type = 'd'
-  when 'link'
-    file_type = 'l'
+# filestatデータを収集
+def collect_type_permission_data(each_data,number_of_files)
+  file_type = []
+  type_permission = []
+  number_of_files.times do |n|
+    case each_data[n][:filestat].ftype
+    when 'file'
+      file_type = '-'
+    when 'directory'
+      file_type = 'd'
+    when 'link'
+      file_type = 'l'
   end
   permission_number = each_data[n][:filestat].mode.to_s(8)
   permission_number = permission_number.split('').last(3).join('')
@@ -70,47 +59,67 @@ case each_data[n][:filestat].ftype
   type_permission << file_type + permission_symbol
 end
 
-number_of_files.times do |n|
-  user_name = Etc.getpwuid(each_data[n][:filestat].uid).name
-  group_name = Etc.getgrgid(each_data[n][:filestat].gid).name
-  user << user_name
-  group << group_name
+def collect_user_group_data(each_data,number_of_files)
+  user = []
+  group = []
+  number_of_files.times do |n|
+    user_name = Etc.getpwuid(each_data[n][:filestat].uid).name
+    group_name = Etc.getgrgid(each_data[n][:filestat].gid).name
+    user << user_name
+    group << group_name
+  end
 end
 
-number_of_files.times do |n|
-  hardlink << each_data[n][:filestat].nlink
-  month_data << each_data[n][:filestat].atime.strftime('%m')
-  day_data << each_data[n][:filestat].atime.strftime('%d')
-  minute_data << each_data[n][:filestat].atime.strftime('%H:%M')
-  size << each_data[n][:filestat].size
-  name << each_data[n][:file_name]
+def collect_other_filestat_data(each_data,number_of_files)
+  hardlink = []
+  month_data = []
+  day_data = []
+  minute_data = []
+  size = []
+  name = []
+  number_of_files.times do |n|
+    hardlink << each_data[n][:filestat].nlink
+    month_data << each_data[n][:filestat].atime.strftime('%m')
+    day_data << each_data[n][:filestat].atime.strftime('%d')
+    minute_data << each_data[n][:filestat].atime.strftime('%H:%M')
+    size << each_data[n][:filestat].size
+    name << each_data[n][:file_name]
+   end
 end
 
-width_of_user = user.max.to_s.length
-width_of_group = group.max.to_s.length
-width_of_size = size.max.to_s.length
+def shape_width()
+  width_of_user = user.max.to_s.length
+  width_of_group = group.max.to_s.length
+  width_of_size = size.max.to_s.length
+  user = user.map { |x| x.rjust(width_of_user) }
+  group = group.map { |x| x.rjust(width_of_group) }
+  size = size.map { |x| x.to_s.rjust(width_of_size) }
+end
 
-user = user.map { |x| x.rjust(width_of_user) }
-group = group.map { |x| x.rjust(width_of_group) }
-size = size.map { |x| x.to_s.rjust(width_of_size) }
+def convert_array_hash(each_data,number_of_files)
+  block = []
+  hash_array = []
 
-number_of_files.times do |i|
-  block << each_data[n][:filestat].blocks
+  number_of_files.times do |i|
+  block << each_data[i][:filestat].blocks
   hash_array <<
-  {
-    type_permission: type_permission[i],
-    hardlink: hardlink[i],
-    user: user[i],
-    group: group[i],
-    size: size[i],
-    month_data: month_data[i],
-    day_data: day_data[i],
-    minute_data: minute_data[i],
-    name: name[i]
-  }
+    {
+      type_permission: type_permission[i],
+      hardlink: hardlink[i],
+      user: user[i],
+      group: group[i],
+      size: size[i],
+      month_data: month_data[i],
+      day_data: day_data[i],
+      minute_data: minute_data[i],
+      name: name[i]
+    }
+  hash_array
+end
 end
 
-print 'total ' + "#{block.inject(:+)}"
+def print_all_data
+print "total #{block.inject(:+)}\n"
 hash_array.each do |n|
   print "#{n[:type_permission]}  "
   print "#{n[:hardlink]} "
@@ -123,18 +132,32 @@ hash_array.each do |n|
   print (n[:name]).to_s
   print "\n"
 end
+end
 
-def main_none(current_dir_files, number_of_files)
+# lオプション
+def option_l
+  collect_filestat_data(each_data)
+end
+
+# オプションなし
+def option_none(each_data)
+  current_dir_files_name_only = []
+  number_of_files.times do |i|
+    current_dir_files_name_only << each_data[i][:file_name]
+  end
   rows = (number_of_files.to_f / NUMBER_OF_COLUMNS).ceil
-  width = current_dir_files.map(&:size).max + BETWEEN_COLUMNS
-  current_dir_files = current_dir_files.map { |x| x.ljust(width) }
+  width = current_dir_files_name_only.map(&:size).max + BETWEEN_COLUMNS
+  current_dir_files_name_only = current_dir_files_name_only.map { |x| x.ljust(width) }
   rows.times do |i|
-    puts current_dir_files.values_at(i, i + rows, i + rows * 2).join(' ')
+    puts current_dir_files_name_only.values_at(i, i + rows, i + rows * 2).join(' ')
   end
 end
 
-if options['l']
-  main_l(current_dir_files, current_dir_path)
-else
-  main_none(current_dir_files, number_of_files)
+# メインメソッド
+def def collect_file_data(current_dir_files, current_dir_path, number_of_files)
+  if options['l']
+    option_l
+  else
+    option_none
+  end
 end
