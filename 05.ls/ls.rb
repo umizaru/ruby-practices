@@ -14,7 +14,7 @@ current_dir_path = Dir.pwd
 number_of_files = current_dir_files.size
 options = ARGV.getopts('l')
 
-# データ収集メソッド
+# 各オプション共通のデータを収集
 def collect_file_data(current_dir_files, current_dir_path, number_of_files)
   file_data = []
   file_name = []
@@ -28,24 +28,23 @@ def collect_file_data(current_dir_files, current_dir_path, number_of_files)
   end
 
   number_of_files.times do |i|
-    all_data <<
+    all_file_data <<
       {
         file_name: file_name[i],
         size: size[i],
         filestat: filestat[i]
       }
   end
-  all_data
+  all_file_data
 end
 
-each_data = collect_file_data(current_dir_files, current_dir_path, number_of_files)
-
-# filestatデータを収集
-def collect_type_permission_data(each_data,number_of_files)
+# lオプション
+def collect_type_permission_data(all_file_data)
+  number_of_files = all_file_data.size
   file_type = []
   type_permission = []
   number_of_files.times do |n|
-    case each_data[n][:filestat].ftype
+    case all_file_data[n][:filestat].ftype
     when 'file'
       file_type = '-'
     when 'directory'
@@ -53,24 +52,26 @@ def collect_type_permission_data(each_data,number_of_files)
     when 'link'
       file_type = 'l'
   end
-  permission_number = each_data[n][:filestat].mode.to_s(8)
+  permission_number = all_file_data[n][:filestat].mode.to_s(8)
   permission_number = permission_number.split('').last(3).join('')
   permission_symbol = permission_number.gsub(/[01234567]/, PERMISSION_PATTERNS)
   type_permission << file_type + permission_symbol
 end
 
-def collect_user_group_data(each_data,number_of_files)
+def collect_user_group_data(all_file_data)
+  number_of_files = all_file_data.size
   user = []
   group = []
   number_of_files.times do |n|
-    user_name = Etc.getpwuid(each_data[n][:filestat].uid).name
-    group_name = Etc.getgrgid(each_data[n][:filestat].gid).name
+    user_name = Etc.getpwuid(all_file_data[n][:filestat].uid).name
+    group_name = Etc.getgrgid(all_file_data[n][:filestat].gid).name
     user << user_name
     group << group_name
   end
 end
 
-def collect_other_filestat_data(each_data,number_of_files)
+def collect_other_filestat_data(all_file_data)
+  number_of_files = all_file_data.size
   hardlink = []
   month_data = []
   day_data = []
@@ -78,16 +79,16 @@ def collect_other_filestat_data(each_data,number_of_files)
   size = []
   name = []
   number_of_files.times do |n|
-    hardlink << each_data[n][:filestat].nlink
-    month_data << each_data[n][:filestat].atime.strftime('%m')
-    day_data << each_data[n][:filestat].atime.strftime('%d')
-    minute_data << each_data[n][:filestat].atime.strftime('%H:%M')
-    size << each_data[n][:filestat].size
-    name << each_data[n][:file_name]
+    hardlink << all_file_data[n][:filestat].nlink
+    month_data << all_file_data[n][:filestat].atime.strftime('%m')
+    day_data << all_file_data[n][:filestat].atime.strftime('%d')
+    minute_data << all_file_data[n][:filestat].atime.strftime('%H:%M')
+    size << all_file_data[n][:filestat].size
+    name << all_file_data[n][:file_name]
    end
 end
 
-def shape_width()
+def shape_width(user, group, size)
   width_of_user = user.max.to_s.length
   width_of_group = group.max.to_s.length
   width_of_size = size.max.to_s.length
@@ -96,12 +97,13 @@ def shape_width()
   size = size.map { |x| x.to_s.rjust(width_of_size) }
 end
 
-def convert_array_hash(each_data,number_of_files)
+def convert_array_to_hash(all_file_data)
+  number_of_files = all_file_data.size
   block = []
   hash_array = []
 
   number_of_files.times do |i|
-  block << each_data[i][:filestat].blocks
+  block << all_file_data[i][:filestat].blocks
   hash_array <<
     {
       type_permission: type_permission[i],
@@ -118,7 +120,7 @@ def convert_array_hash(each_data,number_of_files)
 end
 end
 
-def print_all_data
+def print_filestat_data(hash_array)
 print "total #{block.inject(:+)}\n"
 hash_array.each do |n|
   print "#{n[:type_permission]}  "
@@ -136,14 +138,14 @@ end
 
 # lオプション
 def option_l
-  collect_filestat_data(each_data)
+  #上で作ったメソッドを書き連ねる
 end
 
 # オプションなし
-def option_none(each_data)
+def option_none(all_file_data)
   current_dir_files_name_only = []
   number_of_files.times do |i|
-    current_dir_files_name_only << each_data[i][:file_name]
+    current_dir_files_name_only << all_file_data[i][:file_name]
   end
   rows = (number_of_files.to_f / NUMBER_OF_COLUMNS).ceil
   width = current_dir_files_name_only.map(&:size).max + BETWEEN_COLUMNS
@@ -154,7 +156,8 @@ def option_none(each_data)
 end
 
 # メインメソッド
-def def collect_file_data(current_dir_files, current_dir_path, number_of_files)
+def main(current_dir_files, current_dir_path, number_of_files)
+  all_file_data = collect_file_data(current_dir_files, current_dir_path, number_of_files)
   if options['l']
     option_l
   else
