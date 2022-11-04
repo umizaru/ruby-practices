@@ -7,24 +7,24 @@ require 'debug'
 
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 4
-Max_digits_of_size = 4
+MAX_DIGITS_OF_SIZE = 4
 PERMISSION_PATTERNS = { '0' => '---', '1' => '--x', '2' => '-w-', '3' => '-wx', '4' => 'r--', '5' => 'r-x', '6' => 'rw-', '7' => 'rwx' }.freeze
 
 file_names = Dir.glob('*')
 options = ARGV.getopts('l')
 
 def collect_files(file_names)
-  file_names.map do |file_names|
+  file_names.map do |item|
     {
-      name: file_names,
-      size: FileTest.size(file_names),
-      stat: File.stat(file_names),
+      name: item,
+      size: FileTest.size(item),
+      stat: File.stat(item)
     }
   end
 end
 
 def stat_to_type_and_permission(stat)
-  case stat.ftypez
+  case stat.ftype
   when 'file'
     file_type = '-'
   when 'directory'
@@ -34,7 +34,7 @@ def stat_to_type_and_permission(stat)
   end
   permission_number = stat.mode.to_s(8).split('').last(3).join('')
   permission_symbol = permission_number.gsub(/[01234567]/, PERMISSION_PATTERNS)
-  type_permission = file_type + permission_symbol
+  file_type + permission_symbol
 end
 
 def stat_to_hardlink(stat)
@@ -50,7 +50,7 @@ def stat_to_group(stat)
 end
 
 def stat_to_size(stat)
-  size = stat.to_s.rjust(Max_digits_of_size)
+  stat.to_s.rjust(MAX_DIGITS_OF_SIZE)
 end
 
 def stat_to_month(stat)
@@ -66,7 +66,15 @@ def stat_to_minute(stat)
 end
 
 def print_files_detail(file)
-  print "#{stat_to_type_and_permission(file[:stat])}  #{stat_to_hardlink(file[:stat])} #{stat_to_user(file[:stat])}  #{stat_to_group(file[:stat])}  #{stat_to_size(file[:size])} #{stat_to_month(file[:stat])} #{stat_to_day(file[:stat])} #{stat_to_minute(file[:stat])} #{file[:name]}"
+  print "#{stat_to_type_and_permission(file[:stat])}  "
+  print "#{stat_to_hardlink(file[:stat])} "
+  print "#{stat_to_user(file[:stat])} "
+  print "#{stat_to_group(file[:stat])}  "
+  print "#{stat_to_size(file[:size])} "
+  print "#{stat_to_month(file[:stat])} "
+  print "#{stat_to_day(file[:stat])} "
+  print "#{stat_to_minute(file[:stat])} "
+  print file[:name].to_s
   print "\n"
 end
 
@@ -79,7 +87,7 @@ def options_none(file_names)
   end
 end
 
-def main(file_names,options)
+def main(file_names, options)
   files = collect_files(file_names)
   if options['l']
     files.each do |file|
@@ -90,4 +98,4 @@ def main(file_names,options)
   end
 end
 
-main(file_names,options)
+main(file_names, options)
