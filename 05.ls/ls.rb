@@ -7,8 +7,16 @@ require 'debug'
 
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 4
-MAX_DIGITS_OF_SIZE = 4
-PERMISSION_PATTERNS = { '0' => '---', '1' => '--x', '2' => '-w-', '3' => '-wx', '4' => 'r--', '5' => 'r-x', '6' => 'rw-', '7' => 'rwx' }.freeze
+PERMISSION_PATTERNS = {
+  '0' => '---',
+  '1' => '--x',
+  '2' => '-w-',
+  '3' => '-wx',
+  '4' => 'r--',
+  '5' => 'r-x',
+  '6' => 'rw-',
+  '7' => 'rwx'
+}.freeze
 
 file_names = Dir.glob('*')
 options = ARGV.getopts('l')
@@ -21,6 +29,11 @@ def collect_files(file_names)
       stat: File.stat(item)
     }
   end
+end
+
+def shape_width(files)
+  size = files.map { |x| x[:size] }
+  size.max.to_s.length
 end
 
 def stat_to_type_and_permission(stat)
@@ -49,8 +62,8 @@ def stat_to_group(stat)
   Etc.getgrgid(stat.gid).name
 end
 
-def stat_to_size(stat)
-  stat.to_s.rjust(MAX_DIGITS_OF_SIZE)
+def stat_to_size(stat, width_of_size)
+  stat.to_s.rjust(width_of_size)
 end
 
 def stat_to_month(stat)
@@ -65,12 +78,12 @@ def stat_to_minute(stat)
   stat.atime.strftime('%H:%M')
 end
 
-def print_files_detail(file)
+def print_files_detail(file, width_of_size)
   print "#{stat_to_type_and_permission(file[:stat])}  "
   print "#{stat_to_hardlink(file[:stat])} "
   print "#{stat_to_user(file[:stat])} "
   print "#{stat_to_group(file[:stat])}  "
-  print "#{stat_to_size(file[:size])} "
+  print "#{stat_to_size(file[:size], width_of_size)} "
   print "#{stat_to_month(file[:stat])} "
   print "#{stat_to_day(file[:stat])} "
   print "#{stat_to_minute(file[:stat])} "
@@ -78,7 +91,7 @@ def print_files_detail(file)
   print "\n"
 end
 
-def options_none(file_names)
+def print_files(file_names)
   rows = (file_names.size.to_f / NUMBER_OF_COLUMNS).ceil
   width = file_names.map(&:size).max + BETWEEN_COLUMNS
   file_names = file_names.map { |x| x.ljust(width) }
@@ -89,12 +102,13 @@ end
 
 def main(file_names, options)
   files = collect_files(file_names)
+  width_of_size = shape_width(files)
   if options['l']
     files.each do |file|
-      print_files_detail(file)
+      print_files_detail(file, width_of_size)
     end
   else
-    options_none(file_names)
+    print_files(file_names)
   end
 end
 
