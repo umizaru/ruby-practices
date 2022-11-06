@@ -19,7 +19,21 @@ PERMISSION_PATTERNS = {
 }.freeze
 
 file_names = Dir.glob('*')
-options = ARGV.getopts('l')
+options = ARGV.getopts('a','l','r')
+
+def main(file_names, options)
+  file_names = Dir.glob('*', File::FNM_DOTMATCH) if options['a']
+  file_names = file_names.reverse if options['r']
+  files = collect_files(file_names)
+  width_of_size = shape_width(files)
+  if options['l']
+    files.each do |file|
+      print_files_detail(file, width_of_size)
+    end
+  else
+    print_files(file_names)
+  end
+end
 
 def collect_files(file_names)
   file_names.map do |item|
@@ -32,8 +46,7 @@ def collect_files(file_names)
 end
 
 def shape_width(files)
-  size = files.map { |x| x[:size] }
-  size.max.to_s.length
+  size = files.map { |x| x[:size] }.max.to_s.length
 end
 
 def stat_to_type_and_permission(stat)
@@ -100,16 +113,8 @@ def print_files(file_names)
   end
 end
 
-def main(file_names, options)
-  files = collect_files(file_names)
-  width_of_size = shape_width(files)
-  if options['l']
-    files.each do |file|
-      print_files_detail(file, width_of_size)
-    end
-  else
-    print_files(file_names)
-  end
-end
-
 main(file_names, options)
+
+# block = []
+# block = files[:stat].blocks
+# print "total " + "#{block.inject(:+)}"
