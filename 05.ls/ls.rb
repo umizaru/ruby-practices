@@ -3,7 +3,6 @@
 require 'optparse'
 require 'etc'
 require 'time'
-require 'debug'
 
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 4
