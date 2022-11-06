@@ -19,16 +19,17 @@ PERMISSION_PATTERNS = {
 }.freeze
 
 file_names = Dir.glob('*')
-options = ARGV.getopts('a','l','r')
+options = ARGV.getopts('a', 'l', 'r')
 
 def main(file_names, options)
   file_names = Dir.glob('*', File::FNM_DOTMATCH) if options['a']
   file_names = file_names.reverse if options['r']
   files = collect_files(file_names)
-  width_of_size = shape_width(files)
+  width = identify_character_width(files)
   if options['l']
+    print_total(files)
     files.each do |file|
-      print_files_detail(file, width_of_size)
+      print_files_detail(file, width)
     end
   else
     print_files(file_names)
@@ -45,11 +46,16 @@ def collect_files(file_names)
   end
 end
 
-def shape_width(files)
-  size = files.map { |x| x[:size] }.max.to_s.length
+def identify_character_width(files)
+  {
+    hardlink: files.map { |x| x[:stat].nlink }.max.to_s.length,
+    user: files.map { |x| Etc.getpwuid(x[:stat].uid).name }.max.length,
+    group: files.map { |x| Etc.getgrgid(x[:stat].gid).name }.max.length,
+    size: files.map { |x| x[:size] }.max.to_s.length
+  }
 end
 
-def stat_to_type_and_permission(stat)
+def type_and_permission(stat)
   case stat.ftype
   when 'file'
     file_type = '-'
@@ -63,43 +69,50 @@ def stat_to_type_and_permission(stat)
   file_type + permission_symbol
 end
 
-def stat_to_hardlink(stat)
-  stat.nlink
+def hardlink(stat, width)
+  stat.nlink.to_s.rjust(width[:hardlink])
 end
 
-def stat_to_user(stat)
-  Etc.getpwuid(stat.uid).name
+def user(stat, width)
+  Etc.getpwuid(stat.uid).name.rjust(width[:user])
 end
 
-def stat_to_group(stat)
-  Etc.getgrgid(stat.gid).name
+def group(stat, width)
+  Etc.getgrgid(stat.gid).name.rjust(width[:group])
 end
 
-def stat_to_size(stat, width_of_size)
-  stat.to_s.rjust(width_of_size)
+def size(stat, width)
+  stat.to_s.rjust(width[:size])
 end
 
-def stat_to_month(stat)
-  stat.atime.strftime('%m')
+def month(stat)
+  stat.atime.strftime('%_m')
 end
 
-def stat_to_day(stat)
-  stat.atime.strftime('%d')
+def day(stat)
+  stat.atime.strftime('%_d')
 end
 
-def stat_to_minute(stat)
-  stat.atime.strftime('%H:%M')
+def minute(stat)
+  stat.atime.strftime('%_H:%M')
 end
 
-def print_files_detail(file, width_of_size)
-  print "#{stat_to_type_and_permission(file[:stat])}  "
-  print "#{stat_to_hardlink(file[:stat])} "
-  print "#{stat_to_user(file[:stat])} "
-  print "#{stat_to_group(file[:stat])}  "
-  print "#{stat_to_size(file[:size], width_of_size)} "
-  print "#{stat_to_month(file[:stat])} "
-  print "#{stat_to_day(file[:stat])} "
-  print "#{stat_to_minute(file[:stat])} "
+def print_total(files)
+  blocks = files.map do |file|
+    file[:stat].blocks
+  end
+  print "total #{blocks.sum}\n"
+end
+
+def print_files_detail(file, width)
+  print "#{type_and_permission(file[:stat])}  "
+  print "#{hardlink(file[:stat], width)} "
+  print "#{user(file[:stat], width)}  "
+  print "#{group(file[:stat], width)}  "
+  print "#{size(file[:size], width)} "
+  print "#{month(file[:stat])} "
+  print "#{day(file[:stat])} "
+  print "#{minute(file[:stat])} "
   print file[:name].to_s
   print "\n"
 end
@@ -114,7 +127,3 @@ def print_files(file_names)
 end
 
 main(file_names, options)
-
-# block = []
-# block = files[:stat].blocks
-# print "total " + "#{block.inject(:+)}"
