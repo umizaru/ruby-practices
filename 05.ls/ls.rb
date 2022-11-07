@@ -17,18 +17,18 @@ PERMISSION_PATTERNS = {
   '7' => 'rwx'
 }.freeze
 
-file_names = Dir.glob('*')
 options = ARGV.getopts('a', 'l', 'r')
+file_names = Dir.glob('*')
+file_names = Dir.glob('*', File::FNM_DOTMATCH) if options['a']
+file_names = file_names.reverse if options['r']
 
 def main(file_names, options)
-  file_names = Dir.glob('*', File::FNM_DOTMATCH) if options['a']
-  file_names = file_names.reverse if options['r']
   files = collect_files(file_names)
-  width = identify_character_width(files)
+  maximum_number_of_characters = identify_maximum_number_of_characters(files)
   if options['l']
     print_total(files)
     files.each do |file|
-      print_files_detail(file, width)
+      print_files_detail(file, maximum_number_of_characters)
     end
   else
     print_files(file_names)
@@ -45,7 +45,7 @@ def collect_files(file_names)
   end
 end
 
-def identify_character_width(files)
+def identify_maximum_number_of_characters(files)
   {
     hardlink: files.map { |x| x[:stat].nlink }.max.to_s.length,
     user: files.map { |x| Etc.getpwuid(x[:stat].uid).name }.max.length,
@@ -68,20 +68,20 @@ def type_and_permission(stat)
   file_type + permission_symbol
 end
 
-def hardlink(stat, width)
-  stat.nlink.to_s.rjust(width[:hardlink])
+def hardlink(stat, maximum_number_of_characters)
+  stat.nlink.to_s.rjust(maximum_number_of_characters[:hardlink])
 end
 
-def user(stat, width)
-  Etc.getpwuid(stat.uid).name.rjust(width[:user])
+def user(stat, maximum_number_of_characters)
+  Etc.getpwuid(stat.uid).name.rjust(maximum_number_of_characters[:user])
 end
 
-def group(stat, width)
-  Etc.getgrgid(stat.gid).name.rjust(width[:group])
+def group(stat, maximum_number_of_characters)
+  Etc.getgrgid(stat.gid).name.rjust(maximum_number_of_characters[:group])
 end
 
-def size(stat, width)
-  stat.to_s.rjust(width[:size])
+def size(stat, maximum_number_of_characters)
+  stat.to_s.rjust(maximum_number_of_characters[:size])
 end
 
 def month(stat)
@@ -103,12 +103,12 @@ def print_total(files)
   print "total #{blocks.sum}\n"
 end
 
-def print_files_detail(file, width)
+def print_files_detail(file, maximum_number_of_characters)
   print "#{type_and_permission(file[:stat])}  "
-  print "#{hardlink(file[:stat], width)} "
-  print "#{user(file[:stat], width)}  "
-  print "#{group(file[:stat], width)}  "
-  print "#{size(file[:size], width)} "
+  print "#{hardlink(file[:stat], maximum_number_of_characters)} "
+  print "#{user(file[:stat], maximum_number_of_characters)}  "
+  print "#{group(file[:stat], maximum_number_of_characters)}  "
+  print "#{size(file[:size], maximum_number_of_characters)} "
   print "#{month(file[:stat])} "
   print "#{day(file[:stat])} "
   print "#{minute(file[:stat])} "
