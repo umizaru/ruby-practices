@@ -24,11 +24,11 @@ file_names = file_names.reverse if options['r']
 
 def main(file_names, options)
   files = collect_files(file_names)
-  maximum_number_of_characters = identify_maximum_number_of_characters(files)
+  max_length = identify_max_length(files)
   if options['l']
     print_total(files)
     files.each do |file|
-      print_files_detail(file, maximum_number_of_characters)
+      print_files_detail(file, max_length)
     end
   else
     print_files(file_names)
@@ -45,7 +45,7 @@ def collect_files(file_names)
   end
 end
 
-def identify_maximum_number_of_characters(files)
+def identify_max_length(files)
   {
     hardlink: files.map { |x| x[:stat].nlink }.max.to_s.length,
     user: files.map { |x| Etc.getpwuid(x[:stat].uid).name }.max.length,
@@ -68,20 +68,20 @@ def type_and_permission(stat)
   file_type + permission_symbol
 end
 
-def hardlink(stat, maximum_number_of_characters)
-  stat.nlink.to_s.rjust(maximum_number_of_characters[:hardlink])
+def hardlink(stat, max_length)
+  stat.nlink.to_s.rjust(max_length[:hardlink])
 end
 
-def user(stat, maximum_number_of_characters)
-  Etc.getpwuid(stat.uid).name.rjust(maximum_number_of_characters[:user])
+def user(stat, max_length)
+  Etc.getpwuid(stat.uid).name.rjust(max_length[:user])
 end
 
-def group(stat, maximum_number_of_characters)
-  Etc.getgrgid(stat.gid).name.rjust(maximum_number_of_characters[:group])
+def group(stat, max_length)
+  Etc.getgrgid(stat.gid).name.rjust(max_length[:group])
 end
 
-def size(stat, maximum_number_of_characters)
-  stat.to_s.rjust(maximum_number_of_characters[:size])
+def size(stat, max_length)
+  stat.to_s.rjust(max_length[:size])
 end
 
 def month(stat)
@@ -103,12 +103,12 @@ def print_total(files)
   print "total #{blocks.sum}\n"
 end
 
-def print_files_detail(file, maximum_number_of_characters)
+def print_files_detail(file, max_length)
   print "#{type_and_permission(file[:stat])}  "
-  print "#{hardlink(file[:stat], maximum_number_of_characters)} "
-  print "#{user(file[:stat], maximum_number_of_characters)}  "
-  print "#{group(file[:stat], maximum_number_of_characters)}  "
-  print "#{size(file[:size], maximum_number_of_characters)} "
+  print "#{hardlink(file[:stat], max_length)} "
+  print "#{user(file[:stat], max_length)}  "
+  print "#{group(file[:stat], max_length)}  "
+  print "#{size(file[:size], max_length)} "
   print "#{month(file[:stat])} "
   print "#{day(file[:stat])} "
   print "#{minute(file[:stat])} "
