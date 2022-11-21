@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'debug'
+
 options = ARGV.getopts('l', 'w', 'c')
 
-def main(options)
+def main
   files = make_source_files
-  print_outputs(files, options)
-  print_total(files, options)
+  print_outputs(files)
+  return unless files.size > 1
+  print_total(files)
 end
 
 def make_source_files
@@ -15,9 +18,7 @@ def make_source_files
   else
     stdins = $stdin.read.split(',')
     stdins.map do |i|
-      {
-        file_contents: i
-      }
+      { file_contents: i }
     end
   end
 end
@@ -31,76 +32,52 @@ def collect_files
   end
 end
 
-def print_outputs(files, options)
-  if options.value?(true)
-    files.each do |file|
-      print_outputs_options(file, options)
-    end
-  else
-    files.each do |file|
-      print_outputs_options_none(file)
-    end
+def count_outputs(files)
+  files.map do |file|
+    {
+      lines: count_lines(file[:file_contents]),
+      words: count_words(file[:file_contents]),
+      bytes: count_byte(file[:file_contents]),
+      name: " #{file[:file_name]}"
+    }
   end
 end
 
-def print_outputs_options(file, options)
-  print count_number_of_lines(file[:file_contents]).to_s.rjust(8) if options['l']
-  print count_number_of_words(file[:file_contents]).to_s.rjust(8) if options['w']
-  print count_bytesize(file[:file_contents]).to_s.rjust(8) if options['c']
-  print " #{file[:file_name]}"
-  print "\n"
-end
-
-def print_outputs_options_none(file)
-  print count_number_of_lines(file[:file_contents]).to_s.rjust(8)
-  print count_number_of_words(file[:file_contents]).to_s.rjust(8)
-  print count_bytesize(file[:file_contents]).to_s.rjust(8)
-  print " #{file[:file_name]}"
-  print "\n"
-end
-
-def count_number_of_lines(file)
+def count_lines(file)
   file.lines.count
 end
 
-def count_number_of_words(file)
+def count_words(file)
   file.split(/\s+/).size
 end
 
-def count_bytesize(file)
+def count_byte(file)
   file.bytesize
 end
 
-def print_total(files, options)
-  return unless files.size > 1
-
-  if options.value?(true)
-    print_total_options(files, options)
-  else
-    print_total_options_none(files)
+def print_outputs(files)
+  options = ARGV.getopts('l', 'w', 'c')
+  count_outputs(files).each do |file|
+    file.each_value do |f|
+      print f.to_s.rjust(8)
+    end
+    print "\n"
   end
-end
-
-def print_total_options(files, options)
-  print count_total(files)[:number_of_lines].to_s.rjust(8) if options['l']
-  print count_total(files)[:number_of_words].to_s.rjust(8) if options['w']
-  print count_total(files)[:number_of_bytes].to_s.rjust(8) if options['c']
-  print ' total'
-end
-
-def print_total_options_none(files)
-  print count_total(files)[:number_of_lines].to_s.rjust(8)
-  print count_total(files)[:number_of_words].to_s.rjust(8)
-  print count_total(files)[:number_of_bytes].to_s.rjust(8)
-  print ' total'
 end
 
 def count_total(files)
   {
-    number_of_lines: files.map { |x| x[:file_contents].to_s.lines.count }.sum,
-    number_of_words: files.map { |x| x[:file_contents].to_s.split(/\s+/).size }.sum,
-    number_of_bytes: files.map { |x| x[:file_contents].to_s.bytesize }.sum
+    number_of_lines: files.sum { |file| file[:file_contents].to_s.lines.count },
+    number_of_words: files.sum { |file| file[:file_contents].to_s.split(/\s+/).size },
+    number_of_bytes: files.sum { |file| file[:file_contents].to_s.bytesize }
   }
 end
 
-main(options)
+def print_total(files)
+  count_total(files).each_value do |file|
+    print file.to_s.rjust(8)
+  end
+  print ' total'
+end
+
+main
