@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'optparse'
-require 'debug'
 
 options = ARGV.getopts('l', 'w', 'c')
 
@@ -41,7 +40,7 @@ def print_total(files, options)
     print totals[:number_of_bytes] if options['c']
   else
     totals.each_value do |total|
-      print total.to_s.rjust(8)
+      print total
     end
   end
   print ' total'
