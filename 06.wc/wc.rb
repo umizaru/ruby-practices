@@ -7,7 +7,8 @@ def main
   files = make_source_files
   outputs = count_outputs(files)
   outputs_including_total = count_outputs_including_total(outputs)
-  print_outputs(options, outputs_including_total)
+  rjusted_total = rjust_count_outputs_including_total(outputs_including_total)
+  print_outputs(options, rjusted_total)
 end
 
 def make_source_files
@@ -63,14 +64,20 @@ def count_outputs_including_total(outputs)
   end
 end
 
-def print_outputs(options, outputs)
-  outputs.each do |file|
-    #   file.each do |key, value|
-    #     file[key] = value.to_s.rjust(8) if key != :name
-    # end
-    print file[:lines] if options['l'] || options.values.all? { |v| v == false }
-    print file[:words] if options['w'] || options.values.all? { |v| v == false }
-    print file[:bytes] if options['c'] || options.values.all? { |v| v == false }
+def rjust_count_outputs_including_total(outputs_including_total)
+  outputs_including_total.each do |file|
+    file.each do |key, value|
+      file[key] = value.to_s.rjust(8) if key != :name
+    end
+  end
+end
+
+def print_outputs(options, rjusted_total)
+  has_no_options = options.values.all? { |v| v == false }
+  rjusted_total.each do |file|
+    print file[:lines] if options['l'] || has_no_options
+    print file[:words] if options['w'] || has_no_options
+    print file[:bytes] if options['c'] || has_no_options
     puts " #{file[:name]}"
   end
 end
