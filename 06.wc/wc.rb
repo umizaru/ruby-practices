@@ -5,10 +5,14 @@ require 'optparse'
 def main
   options = ARGV.getopts('l', 'w', 'c')
   options = { 'l' => true, 'w' => true, 'c' => true } if options.values.none?
+  options = options.transform_keys(&:to_sym)
   files = make_source_files
   outputs = count_outputs(files)
-  outputs_including_total = count_outputs_including_total(outputs)
-  print_outputs(options, outputs_including_total)
+  if outputs.size > 1
+    total = count_total(outputs)
+    outputs << total
+  end
+  print_outputs(options, outputs)
 end
 
 def make_source_files
@@ -20,9 +24,7 @@ def make_source_files
       }
     end
   else
-    stdin = $stdin.read
-    stdin_file = []
-    stdin_file << { file_contents: stdin }
+    [] << { file_contents: $stdin.read }
   end
 end
 
@@ -37,28 +39,24 @@ def count_outputs(files)
   end
 end
 
-def count_outputs_including_total(outputs)
-  if outputs.size > 1
-    totals =
-      {
-        lines: outputs.sum { |file| file[:lines] },
-        words: outputs.sum { |file| file[:words] },
-        bytes: outputs.sum { |file| file[:bytes] },
-        name: 'total'
-      }
-    outputs.push(totals)
-  else
-    outputs
-  end
+def count_total(outputs)
+  {
+    lines: outputs.sum { |file| file[:lines] },
+    words: outputs.sum { |file| file[:words] },
+    bytes: outputs.sum { |file| file[:bytes] },
+    name: 'total'
+  }
 end
 
-def print_outputs(options, outputs_including_total)
-  converts = { 'l' => 'lines', 'w' => 'words', 'c' => 'bytes' }
-  options = options.transform_keys { |key| converts[key] }.transform_keys(&:to_sym)
-  outputs_including_total.each do |file|
-    file.each_key do |item|
-      print file[item].to_s.rjust(8) if options[item]
-    end
+def rjust(number)
+  number.to_s.rjust(8)
+end
+
+def print_outputs(options, outputs)
+  outputs.each do |file|
+    print rjust(file[:lines]) if options[:l]
+    print rjust(file[:words]) if options[:w]
+    print rjust(file[:bytes]) if options[:c]
     puts " #{file[:name]}"
   end
 end
