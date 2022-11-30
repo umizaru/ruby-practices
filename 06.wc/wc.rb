@@ -3,16 +3,17 @@
 require 'optparse'
 
 def main
-  options = ARGV.getopts('l', 'w', 'c')
-  options = { 'l' => true, 'w' => true, 'c' => true } if options.values.none?
-  options = options.transform_keys(&:to_sym)
+  options = check_options_exist
   files = make_source_files
   outputs = count_outputs(files)
-  if outputs.size > 1
-    total = count_total(outputs)
-    outputs << total
-  end
+  outputs << count_total(outputs) if outputs.size > 1
   print_outputs(options, outputs)
+end
+
+def check_options_exist
+  options = ARGV.getopts('l', 'w', 'c')
+  options = { 'l' => true, 'w' => true, 'c' => true } if options.values.none?
+  options.transform_keys(&:to_sym)
 end
 
 def make_source_files
@@ -24,7 +25,7 @@ def make_source_files
       }
     end
   else
-    [] << { file_contents: $stdin.read }
+    [{ file_contents: $stdin.read }]
   end
 end
 
