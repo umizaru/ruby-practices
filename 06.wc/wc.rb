@@ -3,22 +3,21 @@
 require 'optparse'
 
 def main
-  options = check_options_exist
-  files = make_source_files
-  outputs = count_outputs(files)
+  files_with_extention = select_files_with_extension
+  source_files = make_source_files(files_with_extention)
+  outputs = count_outputs(source_files)
   outputs << count_total(outputs) if outputs.size > 1
-  print_outputs(options, outputs)
+  options = each_options_true_or_false
+  print_outputs(outputs, options)
 end
 
-def check_options_exist
-  options = ARGV.getopts('l', 'w', 'c')
-  options = { 'l' => true, 'w' => true, 'c' => true } if options.values.none?
-  options.transform_keys(&:to_sym)
+def select_files_with_extension
+  ARGV.select { |file| file.include?('.') }
 end
 
-def make_source_files
-  if ARGV.size >= 1
-    ARGV.map do |file|
+def make_source_files(files_with_extention)
+  if files_with_extention.size >= 1
+    files_with_extention.map do |file|
       {
         file_contents: File.read(file),
         file_name: file
@@ -27,6 +26,12 @@ def make_source_files
   else
     [{ file_contents: $stdin.read }]
   end
+end
+
+def each_options_true_or_false
+  options = ARGV.getopts('l', 'w', 'c')
+  options = { 'l' => true, 'w' => true, 'c' => true } if options.values.none?
+  options.transform_keys(&:to_sym)
 end
 
 def count_outputs(files)
@@ -53,7 +58,7 @@ def rjust(number)
   number.to_s.rjust(8)
 end
 
-def print_outputs(options, outputs)
+def print_outputs(outputs, options)
   outputs.each do |file|
     print rjust(file[:lines]) if options[:l]
     print rjust(file[:words]) if options[:w]
