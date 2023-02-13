@@ -1,28 +1,26 @@
 require_relative "./shot.rb"
 
 class Frame
-  # shift使わないほうがいいかも？
-  def divide_two_dimensions_arrays
-    shots = Shot.new.convert_argument_to_array
-    frames = []
-    9.times do
-      rolls = shots.shift(2)
-      if rolls.first == 10
-        frames << [rolls.first, nil]
-        shots.unshift(rolls.last)
-      else
-        frames << rolls
-      end
-    end
-    frames << shots
-   # => [[6, 3], [9, 0], [0, 3], [8, 2], [7, 3], [10, nil], [9, 1], [8, 0], [10, nil], [6, 4, 5]]
+  attr_reader :first_shot, :second_shot, :third_shot
+
+  def initialize(first_shot, second_shot = nil, third_shot = nil)
+      @first_shot = Shot.new(first_shot)
+      @second_shot = Shot.new(second_shot)
+      @third_shot = Shot.new(third_shot)
+  end
+
+  def score
+    @first_shot.score + @second_shot.score + @third_shot.score
+  end
+
+  def strike?()
+    @first_shot.score == 10
+  end
+
+  def spare?()
+    @first_shot.score != 10 && @first_shot.score + @second_shot.score == 10 #ここ何とかならんのか
   end
 end
 
-frames = Frame.new
-p frames.divide_two_dimensions_arrays
-
-# インスタンス変数：
-# - Wakaran やりながら考える
-# - メソッド：
-# - フレームごとに分けて二次元配列を作る（ストライクは[10,X]にする）
+frame = Frame.new("1","9")
+p frame.score
