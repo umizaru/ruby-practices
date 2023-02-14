@@ -1,5 +1,8 @@
-require_relative './game.rb'
+# frozen_string_literal: true
 
-shots = ARGV[0].split(',')
-game = Game.new(shots)
+require 'debug'
+require_relative './game'
+
+pinfalls = ARGV[0].split(',')
+game = Game.new(pinfalls)
 puts game.score

@@ -1,6 +1,7 @@
-require './bowling.rb'
-require 'test/unit'
+frozen_string_literal: true
 
+require './hoge'
+require 'test/unit'
 
 class BowlingTest < Test::Unit::TestCase
   def test_calc_1
