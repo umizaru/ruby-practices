@@ -19,5 +19,6 @@ class Frame
 
   def spare?
     score == 10
+    #@first_shot&.score != 10 && [@first_shot&.score,@second_shot.score].sum { _1.to_i } == 10
   end
 end

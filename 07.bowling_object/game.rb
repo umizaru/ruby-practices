@@ -5,23 +5,23 @@ require_relative './frame'
 # pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
 # @pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
 # @frames =  [["6","3"],["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
-# following_pinfalls =  [["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
+# following_frames =  [["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
 
 class Game
   def initialize(pinfalls)
     @pinfalls = pinfalls
   end
 
-  def score
+  def calc_score
     @frames = build_frames
-    score = 0
+    game_score = 0
     10.times do |index|
-      frame = Frame.new(@frames[index])
-      score += frame.score
-      following_pinfalls = @frames[index.succ..]
-      score += calc_bonus_point(frame, following_pinfalls)
+      current_frame = Frame.new(@frames[index])
+      game_score += current_frame.score
+      following_frames = @frames[index.succ..]
+      game_score += calc_bonus_point(current_frame, following_frames)
     end
-    score
+    game_score
   end
 
   def build_frames
@@ -41,14 +41,15 @@ class Game
     frames
   end
 
-  def calc_bonus_point(frame, following_pinfalls)
-    following_pinfalls = following_pinfalls.flatten.map { |pin| pin == 'X' ? 10 : pin.to_i }
-    if frame.strike?
-      following_pinfalls.first(2).sum
-      elsif frame.spare?
-      following_pinfalls.first
+  def calc_bonus_point(current_frame, following_frames)
+    following_frames = following_frames.flatten.map { |pin| pin == 'X' ? 10 : pin.to_i }
+    if current_frame.strike?
+      following_frames.first(2).sum
+    elsif current_frame.spare?
+      following_frames.first
     else
       0
     end
   end
+
 end

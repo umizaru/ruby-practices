@@ -5,4 +5,4 @@ require_relative './game'
 
 pinfalls = ARGV[0].split(',')
 game = Game.new(pinfalls)
-puts game.score
+puts game.calc_score
