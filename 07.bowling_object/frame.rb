@@ -10,7 +10,7 @@ class Frame
   end
 
   def score
-    @first_shot.score + @second_shot.score + @third_shot.score
+    [@first_shot.score, @second_shot.score, @third_shot.score].sum
   end
 
   def strike?
@@ -18,8 +18,6 @@ class Frame
   end
 
   def spare?
-    @first_shot.score != 10 && @first_shot.score + @second_shot.score == 10 # ここ何とかならんのか
+    score == 10
   end
 end
-
-# p Frame.new(["6","3"]).score

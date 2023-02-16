@@ -5,6 +5,7 @@ require_relative './frame'
 # pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
 # @pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
 # @frames =  [["6","3"],["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
+# following_pinfalls =  [["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
 
 class Game
   def initialize(pinfalls)
@@ -17,8 +18,8 @@ class Game
     10.times do |index|
       frame = Frame.new(@frames[index])
       score += frame.score
-      following_pinfalls = @pinfalls[(index + 1)...]
-      score += calc_bonus_point(frame) if @frames.size < 10
+      following_pinfalls = @frames[index.succ..]
+      score += calc_bonus_point(frame, following_pinfalls)
     end
     score
   end
@@ -40,17 +41,14 @@ class Game
     frames
   end
 
-  def calc_bonus_point(frame)
+  def calc_bonus_point(frame, following_pinfalls)
+    following_pinfalls = following_pinfalls.flatten.map { |pin| pin == 'X' ? 10 : pin.to_i }
     if frame.strike?
-      following_pinfalls.first[2].sum
-    elsif frame.spare?
+      following_pinfalls.first(2).sum
+      elsif frame.spare?
       following_pinfalls.first
     else
       0
     end
   end
-あend
-
-# pinfalls = %w[6 3 9 0 0 3 8 2 7 3 10 9 1 8 0 10 6 4 5]
-# game = Game.new(pinfalls)
-# puts game.score
+end

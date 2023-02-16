@@ -1,6 +1,4 @@
-frozen_string_literal: true
-
-require './hoge'
+require './bowling'
 require 'test/unit'
 
 class BowlingTest < Test::Unit::TestCase
