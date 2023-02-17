@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
 require_relative './game'
 
 pinfalls = ARGV[0].split(',')
