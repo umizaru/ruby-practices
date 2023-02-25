@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+# pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
+# @pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
+# ##frames =  [[6,3],[9,0],[0,3],[8,2],[7,3],[10],[9,1],[8,0],[10],[6,4,5]] 間違い
+# frames = [["6","3"],["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
+# following_pinfalls =  [["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
+
 require_relative './frame'
 
 class Game
@@ -8,42 +14,13 @@ class Game
   end
 
   def calc_score
-    @frames = build_frames
     game_score = 0
-    @frames.each_with_index do |frame, index|
-      current_frame = Frame.new(frame)
-      game_score += current_frame.score
-      following_frames = @frames[index.succ..]
-      game_score += calc_bonus_point(current_frame, following_frames)
+    pinfalls = @pinfalls
+    frames = Frame.build_frames(pinfalls)
+    frames.each do |frame|
+      current_frame = Frame.new(frame) # ??
+      game_score += current_frame.calc_score
     end
-    game_score
-  end
-
-  def build_frames
-    frames = []
-    frame = []
-    @pinfalls.each do |pinfall|
-      frame << pinfall
-      if frames.size < 10
-        if frame.size == 2 || pinfall == 'X'
-          frames << frame
-          frame = []
-        end
-      else
-        frames.last << pinfall
-      end
-    end
-    frames
-  end
-
-  def calc_bonus_point(current_frame, following_frames)
-    following_frames = following_frames.flatten.map { |pin| pin == 'X' ? 10 : pin.to_i }
-    if current_frame.strike?
-      following_frames.first(2).sum
-    elsif current_frame.spare?
-      following_frames.first
-    else
-      0
-    end
+    game_score += frames.calc_bonus_point # いけそう？
   end
 end
