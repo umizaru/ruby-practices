@@ -3,10 +3,10 @@
 require_relative './shot'
 
 class Frame
-  def initialize(frame)
-    @first_shot = Shot.new(frame[0])
-    @second_shot = Shot.new(frame[1])
-    @third_shot = Shot.new(frame[2])
+  def initialize(shot)
+    @first_shot = Shot.new(shot[0])
+    @second_shot = Shot.new(shot[1])
+    @third_shot = Shot.new(shot[2])
   end
 
   def score
@@ -20,4 +20,6 @@ class Frame
   def spare?
     score == 10
   end
+
+  
 end

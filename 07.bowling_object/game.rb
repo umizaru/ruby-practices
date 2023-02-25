@@ -10,8 +10,8 @@ class Game
   def calc_score
     @frames = build_frames
     game_score = 0
-    10.times do |index|
-      current_frame = Frame.new(@frames[index])
+    @frames.each_with_index do |frame, index|
+      current_frame = Frame.new(frame)
       game_score += current_frame.score
       following_frames = @frames[index.succ..]
       game_score += calc_bonus_point(current_frame, following_frames)
