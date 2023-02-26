@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-# pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
-# @pinfalls = ["6","3","9","0","0","3","8","2","7","3","X","9","1","8","0","X","6","4","5"]
-# @frames =  [["6","3"],["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
-# following_pinfalls =  [["9","0"],["0","3"],["8","2"],["7","3"],["X"],["9","1"],["8","0"],["X"],["6","4","5"]]
-
 require_relative './shot'
 
 class Frame
@@ -46,11 +41,11 @@ class Frame
   def self.calc_bonus_point
     bonus_point = 0
     @frames.each_with_index do |frame, index|
-      following_frames = @frames[index.succ..].flatten.map { |pin| pin == 'X' ? 10 : pin.to_i }
+      following_frames = @frames[index.succ..].flatten
       bonus_point += if Frame.new(frame).strike?
-                       following_frames.first(2).sum
+                       Shot.new(following_frames[0]).score + Shot.new(following_frames[1]).score
                      elsif Frame.new(frame).spare?
-                       following_frames.first
+                       Shot.new(following_frames[0]).score
                      else
                        0
                      end
