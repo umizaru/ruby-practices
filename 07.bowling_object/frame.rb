@@ -23,36 +23,38 @@ class Frame
   end
 
   def self.build_frames(pinfalls)
-    frames = []
+    @frames = []
     frame = []
     pinfalls.each do |pinfall|
       frame << pinfall
-      if frames.size < 10
+      if @frames.size < 10
         if frame.size == 2 || pinfall == 'X'
-          frames << frame
+          @frames << frame
           frame = []
         end
       else
-        frames.last << pinfall
+        @frames.last << pinfall
       end
     end
-    frames
+    @frames
   end
 
   def calc_score
     [@first_shot.score, @second_shot.score, @third_shot.score].sum
   end
 
-  def calc_bonus_point(frames)
-    following_frames = frames[(frames.index(self) + 1)..].flatten
-    following_frames.map { |pin| pin == 'X' ? 10 : pin.to_i }
-    if strike?
-      following_frames.first(2).sum
-    elsif spare?
-      following_frames.first
-    else
-      0
+  def self.calc_bonus_point
+    bonus_point = 0
+    @frames.each_with_index do |frame, index|
+      following_frames = @frames[index.succ..].flatten.map { |pin| pin == 'X' ? 10 : pin.to_i }
+      bonus_point += if Frame.new(frame).strike?
+                       following_frames.first(2).sum
+                     elsif Frame.new(frame).spare?
+                       following_frames.first
+                     else
+                       0
+                     end
     end
+    bonus_point
   end
-
 end
