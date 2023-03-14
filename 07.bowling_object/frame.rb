@@ -4,30 +4,24 @@ require 'debug'
 require_relative './shot'
 
 class Frame
-  def initialize(shots)
-    @first_shot = Shot.new(shots[0])
-    @second_shot = Shot.new(shots[1])
-    @third_shot = Shot.new(shots[2])
+  def self.first_score(frame)
+    frame[0].score
   end
 
-  def strike?
-    @first_shot.score == 10
+  def self.second_score(frame)
+    frame[1].nil? ? 0 : frame[1].score
   end
 
-  def spare?
-    calc_score == 10 && !strike?
+  def self.third_score(frame)
+    frame[2].nil? ? 0 : frame[2].score
   end
 
-  def first_shot
-    @first_shot.score
+  def self.strike?(frame)
+    frame[0].score == 10
   end
 
-  def second_shot
-    @second_shot.score
-  end
-
-  def calc_score
-    [@first_shot.score, @second_shot.score, @third_shot.score].sum
+  def self.spare?(frame)
+    frame[0].score + frame[1].score == 10
   end
 
   def self.build_frames(pinfalls)
