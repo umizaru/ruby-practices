@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'debug'
 require_relative './shot'
 
 class Frame
@@ -31,16 +32,15 @@ class Frame
 
   def self.build_frames(pinfalls)
     frames = []
-    frame = []
+    current_frame_shots = []
     pinfalls.each do |pinfall|
-      shot = Shot.new(pinfall).score
-      frame << shot
-      if frames.size < 9 && (frame.size == 2 || shot == 10)
-        frames << Frame.new(frame)
-        frame = []
+      shot = Shot.new(pinfall)
+      current_frame_shots << shot
+      if frames.size < 9 && (current_frame_shots.size == 2 || shot.score == 10)
+        frames << current_frame_shots
+        current_frame_shots = []
       end
-      frames << Frame.new(frame) if frame.sum < 10 && frame.size == 2 || frame.size == 3
     end
-    frames
+    frames << current_frame_shots
   end
 end
