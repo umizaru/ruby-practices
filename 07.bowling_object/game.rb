@@ -10,7 +10,7 @@ class Game
   def calc_score
     game_score = 0
     @frames.each do |frame|
-      game_score += frame.calc_score
+      game_score += Frame.new(frame).calc_frame_score
     end
     game_score += calc_bonus_point
   end
@@ -19,9 +19,9 @@ class Game
     bonus_point = 0
     @frames.each_with_index do |frame, index|
       if index < 9
-        if frame.strike?
+        if Frame.new(frame).strike?
           bonus_point += calc_strike_bonus(index)
-        elsif frame.spare?
+        elsif Frame.new(frame).spare?
           bonus_point += calc_spare_bonus(index)
         end
       end
@@ -30,18 +30,18 @@ class Game
   end
 
   def calc_strike_bonus(index)
-    if @frames[index + 1].strike?
+    if Frame.new(@frames[index + 1]).strike?
       if index < 8
-        10 + @frames[index + 2].first_shot
+        10 + Frame.new(@frames[index + 2]).first_shot_score
       else
-        10 + @frames[index + 1].second_shot
+        10 + Frame.new(@frames[index + 1]).second_shot_score
       end
     else
-      @frames[index + 1].first_shot + @frames[index + 1].second_shot
+      Frame.new(@frames[index + 1]).first_shot_score + Frame.new(@frames[index + 1]).second_shot_score
     end
   end
 
   def calc_spare_bonus(index)
-    @frames[index + 1].first_shot
+    Frame.new(@frames[index + 1]).first_shot_score
   end
 end
