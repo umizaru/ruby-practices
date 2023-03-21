@@ -33,21 +33,22 @@ class Game
   end
 
   def calc_strike_bonus(index)
-    next_frame = @frames[index + 1]
-    next_next_frame = @frames[index + 2]
+    next_frame = Frame.new(@frames[index + 1])
+    next_next_frame = Frame.new(@frames[index + 2])
 
-    if Frame.new(next_frame).strike?
+    if next_frame.strike?
       if index < 8
-        10 + Frame.new(next_next_frame).first_shot_score
+        10 + next_next_frame.first_shot_score
       else
-        10 + Frame.new(next_frame).second_shot_score
+        10 + next_frame.second_shot_score
       end
     else
-      Frame.new(next_frame).first_shot_score + Frame.new(next_frame).second_shot_score
+      next_frame.first_shot_score + next_frame.second_shot_score
     end
   end
 
   def calc_spare_bonus(index)
-    Frame.new(@frames[index + 1]).first_shot_score
+    next_frame = Frame.new(@frames[index + 1])
+    next_frame.first_shot_score
   end
 end
