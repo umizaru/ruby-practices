@@ -4,32 +4,26 @@ require 'debug'
 require_relative './shot'
 
 class Frame
-  def initialize(first_shot, second_shot = nil, third_shot = nil)
-    @first_shot = first_shot
-    @second_shot = second_shot
-    @third_shot = third_shot
-    @shots = []
-    @shots << first_shot
-    @shots << second_shot if second_shot
-    @shots << third_shot if third_shot
+  def initialize(frame)
+    @frame_shots = frame
   end
 
   def self.build_frames(pinfalls)
-    frames = []
+    all_frame_shots = []
     current_frame_shots = []
     pinfalls.each do |pinfall|
       shot = Shot.new(pinfall)
       current_frame_shots << shot
-      if frames.size < 9 && (current_frame_shots.size == 2 || shot.score == 10)
-        frames << current_frame_shots
+      if all_frame_shots.size < 9 && (current_frame_shots.size == 2 || shot.score == 10)
+        all_frame_shots << current_frame_shots
         current_frame_shots = []
       end
     end
-    frames << current_frame_shots
+    all_frame_shots << current_frame_shots
   end
 
   def strike?
-    @first_shot.strike?
+    @frame_shots[0].strike?
   end
 
   def spare?
@@ -37,19 +31,14 @@ class Frame
   end
 
   def first_shot_score
-    @first_shot.score
+    @frame_shots[0].score
   end
 
   def second_shot_score
-    @second_shot.score
+    @frame_shots[1].score
   end
 
   def calc_frame_score
-    # [@first_shot.score,@second_shot.score,@third_shot.score].sum
-    frame_score = 0
-    @shots.each do |shot|
-      frame_score += shot.score
-    end
-    frame_score
+    @frame_shots.map(&:score).sum
   end
 end
