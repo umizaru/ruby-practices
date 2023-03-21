@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
+require 'debug'
 require_relative './shot'
 
 class Frame
-  def initialize(frame)
-    @frame = frame
-    @first_shot = frame[0]
-    @second_shot = frame[1]
-    @third_shot = frame[2]
+  def initialize(first_shot, second_shot = nil, third_shot = nil)
+    @first_shot = first_shot
+    @second_shot = second_shot
+    @third_shot = third_shot
+    @shots = []
+    @shots << first_shot
+    @shots << second_shot if second_shot
+    @shots << third_shot if third_shot
   end
 
   def self.build_frames(pinfalls)
@@ -41,8 +45,9 @@ class Frame
   end
 
   def calc_frame_score
+    # [@first_shot.score,@second_shot.score,@third_shot.score].sum
     frame_score = 0
-    @frame.each do |shot|
+    @shots.each do |shot|
       frame_score += shot.score
     end
     frame_score
