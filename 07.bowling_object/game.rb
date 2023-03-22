@@ -5,26 +5,26 @@ require_relative './frame'
 
 class Game
   def initialize(pinfalls)
-    @frames = Frame.build_frames(pinfalls)
+    @all_frame_shots = Frame.build_frames(pinfalls)
   end
 
   def calc_score
     game_score = 0
-    @frames.each do |frame|
-      current_frame = Frame.new(frame)
-      game_score += current_frame.calc_frame_score
+    @all_frame_shots.each do |frame_shots|
+      current_frame_shots = Frame.new(frame_shots)
+      game_score += current_frame_shots.calc_frame_score
     end
     game_score += calc_bonus_point
   end
 
   def calc_bonus_point
     bonus_point = 0
-    @frames.each_with_index do |frame, index|
-      frame = Frame.new(frame)
+    @all_frame_shots.each_with_index do |frame_shots, index|
+      frame_shots = Frame.new(frame_shots)
       if index < 9
-        if frame.strike?
+        if frame_shots.strike?
           bonus_point += calc_strike_bonus(index)
-        elsif frame.spare?
+        elsif frame_shots.spare?
           bonus_point += calc_spare_bonus(index)
         end
       end
@@ -33,22 +33,21 @@ class Game
   end
 
   def calc_strike_bonus(index)
-    next_frame = Frame.new(@frames[index + 1])
-    next_next_frame = Frame.new(@frames[index + 2])
-
-    if next_frame.strike?
+    next_frame_shots = Frame.new(@all_frame_shots[index + 1])
+    next_next_frame_shots = Frame.new(@all_frame_shots[index + 2])
+    if next_frame_shots.strike?
       if index < 8
-        10 + next_next_frame.first_shot_score
+        10 + next_next_frame_shots.first_shot_score
       else
-        10 + next_frame.second_shot_score
+        10 + next_frame_shots.second_shot_score
       end
     else
-      next_frame.first_shot_score + next_frame.second_shot_score
+      next_frame_shots.first_shot_score + next_frame_shots.second_shot_score
     end
   end
 
   def calc_spare_bonus(index)
-    next_frame = Frame.new(@frames[index + 1])
-    next_frame.first_shot_score
+    next_frame_shots = Frame.new(@all_frame_shots[index + 1])
+    next_frame_shots.first_shot_score
   end
 end

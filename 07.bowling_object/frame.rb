@@ -4,22 +4,22 @@ require 'debug'
 require_relative './shot'
 
 class Frame
-  def initialize(frame)
-    @frame_shots = frame
+  def initialize(frame_shots)
+    @frame_shots = frame_shots
   end
 
   def self.build_frames(pinfalls)
-    all_frame_shots = []
+    frame_shots = []
     current_frame_shots = []
     pinfalls.each do |pinfall|
       shot = Shot.new(pinfall)
       current_frame_shots << shot
-      if all_frame_shots.size < 9 && (current_frame_shots.size == 2 || shot.score == 10)
-        all_frame_shots << current_frame_shots
+      if frame_shots.size < 9 && (current_frame_shots.size == 2 || shot.strike?)
+        frame_shots << current_frame_shots
         current_frame_shots = []
       end
     end
-    all_frame_shots << current_frame_shots
+    frame_shots << current_frame_shots
   end
 
   def strike?
