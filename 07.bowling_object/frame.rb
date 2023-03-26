@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
 require_relative './shot'
 
 class Frame
@@ -20,7 +19,6 @@ class Frame
       end
     end
     frame_shots << Frame.new(current_frame_shots) # 10フレーム目
-    binding.break
   end
 
   def strike?
