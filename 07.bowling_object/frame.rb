@@ -15,11 +15,12 @@ class Frame
       shot = Shot.new(pinfall)
       current_frame_shots << shot
       if frame_shots.size < 9 && (current_frame_shots.size == 2 || shot.strike?)
-        frame_shots << current_frame_shots
+        frame_shots << Frame.new(current_frame_shots)
         current_frame_shots = []
       end
     end
-    frame_shots << current_frame_shots
+    frame_shots << Frame.new(current_frame_shots) # 10フレーム目
+    binding.break
   end
 
   def strike?
