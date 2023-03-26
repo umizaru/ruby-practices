@@ -3,26 +3,26 @@
 require_relative './shot'
 
 class Frame
-  def initialize(frame_shots)
-    @frame_shots = frame_shots
+  def initialize(shots)
+    @shots = shots
   end
 
   def self.build_frames(pinfalls)
-    frame_shots = []
-    current_frame_shots = []
+    frames = []
+    current_shots = []
     pinfalls.each do |pinfall|
       shot = Shot.new(pinfall)
-      current_frame_shots << shot
-      if frame_shots.size < 9 && (current_frame_shots.size == 2 || shot.strike?)
-        frame_shots << Frame.new(current_frame_shots)
-        current_frame_shots = []
+      current_shots << shot
+      if frames.size < 9 && (current_shots.size == 2 || shot.strike?)
+        frames << Frame.new(current_shots)
+        current_shots = []
       end
     end
-    frame_shots << Frame.new(current_frame_shots) # 10フレーム目
+    frames << Frame.new(current_shots) # 10フレーム目
   end
 
   def strike?
-    @frame_shots[0].strike?
+    @shots[0].strike?
   end
 
   def spare?
@@ -30,14 +30,14 @@ class Frame
   end
 
   def first_shot_score
-    @frame_shots[0].score
+    @shots[0].score
   end
 
   def second_shot_score
-    @frame_shots[1].score
+    @shots[1].score
   end
 
   def calc_frame_score
-    @frame_shots.map(&:score).sum
+    @shots.map(&:score).sum
   end
 end
