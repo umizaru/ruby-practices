@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 NUMBER_OF_COLUMNS = 3
-BETWEEN_COLUMNS = 4
 
 require 'debug'
 
@@ -11,20 +10,20 @@ class DefaultFilePrinter
   end
 
   def print_files
-    rows = calculate_rows
-    width = calculate_width
+    rows = calc_rows
+    width = calc_width
     padded_file_names = pad_file_names(width)
     print_formatted_files(rows, padded_file_names)
   end
 
   private
 
-  def calculate_rows
+  def calc_rows
     (@file_names.size.to_f / NUMBER_OF_COLUMNS).ceil
   end
 
-  def calculate_width
-    @file_names.map(&:size).max + BETWEEN_COLUMNS
+  def calc_width
+    @file_names.map(&:size).max
   end
 
   def pad_file_names(width)
