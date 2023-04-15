@@ -2,8 +2,8 @@
 
 require 'debug'
 require 'optparse'
-require_relative './file_printer'
+require_relative './file_outputter'
 
 options = ARGV.getopts('a', 'l', 'r')
-print = FilePrinter.new(options)
-print.run
+files = FileOutputter.new(options)
+files.output

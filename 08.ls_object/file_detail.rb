@@ -15,7 +15,7 @@ class FileDetail
   }.freeze
 
   def initialize(file_name)
-    @file_names = file_name
+    @file_name = file_name
     @stat = File.stat(file_name)
   end
 
@@ -34,7 +34,7 @@ class FileDetail
   end
 
   def name
-    @file_names
+    @file_name
   end
 
   def hardlink
@@ -58,14 +58,14 @@ class FileDetail
   end
 
   def month
-    @stat.atime.strftime('%_m')
+    @stat.mtime.strftime('%_m')
   end
 
   def day
-    @stat.atime.strftime('%_d')
+    @stat.mtime.strftime('%_d')
   end
 
   def minute
-    @stat.atime.strftime('%_H:%M')
+    @stat.mtime.strftime('%R')
   end
 end
