@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
-
 class FileDetail
   PERMISSION_PATTERNS = {
     '0' => '---',

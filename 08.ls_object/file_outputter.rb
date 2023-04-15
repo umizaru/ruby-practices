@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
 require_relative './file_detail_retriever'
 require_relative './long_file_outputter'
 require_relative './default_file_outputter'

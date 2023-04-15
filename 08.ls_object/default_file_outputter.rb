@@ -3,8 +3,6 @@
 NUMBER_OF_COLUMNS = 3
 BETWEEN_COLUMNS = 6
 
-require 'debug'
-
 class DefaultFileOutputter
   def initialize(files_detail)
     @file_name = files_detail.map(&:name)

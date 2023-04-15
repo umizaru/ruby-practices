@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
-
 BETWEEN_DETAILS = 1
 
 class LongFileOutputter
