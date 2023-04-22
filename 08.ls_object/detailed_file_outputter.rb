@@ -7,15 +7,6 @@ class DetailedFileOutputter
     @files_detail = files_detail
   end
 
-  def calc_max_length
-    {
-      max_length_of_hardlink: @files_detail.map(&:hardlink).max.to_s.length,
-      max_length_of_user: @files_detail.map(&:user).max.length,
-      max_length_of_group: @files_detail.map(&:group).max.length,
-      max_length_of_size: @files_detail.map(&:size).max.to_s.length
-    }
-  end
-
   def output
     total_blocks = @files_detail.sum(&:blocks)
     print "total #{total_blocks}\n"
@@ -27,12 +18,21 @@ class DetailedFileOutputter
         file_detail.user.to_s.ljust(calc_max_length[:max_length_of_user] + BETWEEN_DETAILS),
         file_detail.group.to_s.ljust(calc_max_length[:max_length_of_group] + BETWEEN_DETAILS),
         file_detail.size.to_s.rjust(calc_max_length[:max_length_of_size]),
-        file_detail.month,
-        file_detail.day,
-        file_detail.minute,
+        file_detail.date_and_time,
         file_detail.name
       ]
       puts outputs.join(' ')
     end
+  end
+
+  private
+
+  def calc_max_length
+    {
+      max_length_of_hardlink: @files_detail.map(&:hardlink).max.to_s.length,
+      max_length_of_user: @files_detail.map(&:user).max.length,
+      max_length_of_group: @files_detail.map(&:group).max.length,
+      max_length_of_size: @files_detail.map(&:size).max.to_s.length
+    }
   end
 end

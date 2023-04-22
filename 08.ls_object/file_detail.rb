@@ -56,15 +56,7 @@ class FileDetail
     @stat.blocks
   end
 
-  def month
-    @stat.mtime.strftime('%_m')
-  end
-
-  def day
-    @stat.mtime.strftime('%_d')
-  end
-
-  def minute
-    @stat.mtime.strftime('%R')
+  def date_and_time
+    @stat.mtime.strftime('%_m %e %H:%M')
   end
 end
