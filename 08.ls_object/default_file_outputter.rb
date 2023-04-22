@@ -1,37 +1,37 @@
 # frozen_string_literal: true
 
-NUMBER_OF_COLUMNS = 3
-BETWEEN_COLUMNS = 6
-
 class DefaultFileOutputter
-  def initialize(files_detail)
-    @file_name = files_detail.map(&:name)
+  def initialize(file_details)
+    @file_names = file_details.map(&:name)
   end
 
   def output
-    rows = calc_rows
+    number_of_rows = calc_number_of_rows
     width = calc_width + BETWEEN_COLUMNS
-    formatted_details = format_detail(width)
-    output_formatted_file(rows, formatted_details)
+    formatted_details = format_file_names(width)
+    output_formatted_file(number_of_rows, formatted_details)
   end
 
   private
 
-  def calc_rows
-    (@file_name.size.to_f / NUMBER_OF_COLUMNS).ceil
+  NUMBER_OF_COLUMNS = 3
+  BETWEEN_COLUMNS = 5
+
+  def calc_number_of_rows
+    (@file_names.size.to_f / NUMBER_OF_COLUMNS).ceil
   end
 
   def calc_width
-    @file_name.map(&:size).max
+    @file_names.map(&:size).max
   end
 
-  def format_detail(width)
-    @file_name.map { |file_name| file_name.ljust(width) }
+  def format_file_names(width)
+    @file_names.map { |file_name| file_name.ljust(width) }
   end
 
-  def output_formatted_file(rows, formatted_details)
-    rows.times do |i|
-      puts formatted_details.values_at(i, i + rows, i + rows * 2).join(' ')
+  def output_formatted_file(number_of_rows, formatted_details)
+    number_of_rows.times do |i|
+      puts formatted_details.values_at(i, i + number_of_rows, i + number_of_rows * 2).join(' ')
     end
   end
 end

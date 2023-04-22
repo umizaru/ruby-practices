@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
 require 'optparse'
 require_relative './file_outputter'
 
