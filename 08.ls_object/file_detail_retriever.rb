@@ -9,8 +9,8 @@ class FileDetailRetriever
   end
 
   def retrieve
-    files_name = @all ? Dir.entries('.').sort : Dir.glob('*')
-    files_name = files_name.reverse if @reverse
-    files_name.map { |file_name| FileDetail.new(file_name) }
+    file_names = @all ? Dir.entries('.').sort : Dir.glob('*').sort
+    file_names = files_name.reverse if @reverse
+    file_names.map { |file_name| FileDetail.new(file_name) }
   end
 end

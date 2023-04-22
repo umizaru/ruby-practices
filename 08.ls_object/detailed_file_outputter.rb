@@ -2,7 +2,7 @@
 
 BETWEEN_DETAILS = 1
 
-class LongFileOutputter
+class DetailedFileOutputter
   def initialize(files_detail)
     @files_detail = files_detail
   end
@@ -17,8 +17,8 @@ class LongFileOutputter
   end
 
   def output
-    blocks = @files_detail.sum(&:blocks)
-    print "total #{blocks}\n"
+    total_blocks = @files_detail.sum(&:blocks)
+    print "total #{total_blocks}\n"
 
     @files_detail.each do |file_detail|
       outputs = [
