@@ -48,6 +48,8 @@ class FileDetail
     @stat.mtime.strftime('%_m %e %H:%M')
   end
 
+  private
+
   PERMISSION_CONVERSION_TABLE = {
     '0' => '---',
     '1' => '--x',
@@ -58,4 +60,7 @@ class FileDetail
     '6' => 'rw-',
     '7' => 'rwx'
   }.freeze
+
+  private_constant :PERMISSION_CONVERSION_TABLE
+
 end

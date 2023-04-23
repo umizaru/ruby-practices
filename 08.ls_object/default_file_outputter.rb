@@ -17,6 +17,9 @@ class DefaultFileOutputter
   NUMBER_OF_COLUMNS = 3
   BETWEEN_COLUMNS = 5
 
+  private_constant :NUMBER_OF_COLUMNS
+  private_constant :BETWEEN_COLUMNS
+
   def calc_number_of_rows
     (@file_names.size.to_f / NUMBER_OF_COLUMNS).ceil
   end

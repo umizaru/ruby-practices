@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'debug'
+
 class DetailedFileOutputter
   def initialize(file_details)
     @file_details = file_details
@@ -12,10 +14,10 @@ class DetailedFileOutputter
     @file_details.each do |file_detail|
       outputs = [
         file_detail.type_and_permission,
-        file_detail.hardlink.to_s.rjust(identify_max_length[:hardlink] + BETWEEN_DETAILS),
-        file_detail.user.to_s.ljust(identify_max_length[:user] + BETWEEN_DETAILS),
-        file_detail.group.to_s.ljust(identify_max_length[:group] + BETWEEN_DETAILS),
-        file_detail.size.to_s.rjust(identify_max_length[:size]),
+        file_detail.hardlink.to_s.rjust(max_length_of[:hardlink] + BETWEEN_DETAILS),
+        file_detail.user.to_s.ljust(max_length_of[:user] + BETWEEN_DETAILS),
+        file_detail.group.to_s.ljust(max_length_of[:group] + BETWEEN_DETAILS),
+        file_detail.size.to_s.rjust(max_length_of[:size]),
         file_detail.date_and_time,
         file_detail.name
       ]
@@ -26,8 +28,9 @@ class DetailedFileOutputter
   private
 
   BETWEEN_DETAILS = 1
+  private_constant :BETWEEN_DETAILS
 
-  def identify_max_length
+  def max_length_of
     {
       hardlink: @file_details.map(&:hardlink).max.to_s.length,
       user: @file_details.map(&:user).max.length,

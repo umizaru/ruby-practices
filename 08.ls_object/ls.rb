@@ -4,5 +4,5 @@ require 'optparse'
 require_relative './file_outputter'
 
 options = ARGV.getopts('a', 'l', 'r')
-fileoutputter = FileOutputter.new(options)
-fileoutputter.output
+file_outputter = FileOutputter.new(options)
+file_outputter.output
