@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 class DefaultFileOutputter
+  NUMBER_OF_COLUMNS = 3
+  BETWEEN_COLUMNS = 5
+  private_constant :NUMBER_OF_COLUMNS
+  private_constant :BETWEEN_COLUMNS
+
   def initialize(file_details)
     @file_names = file_details.map(&:name)
   end
@@ -13,12 +18,6 @@ class DefaultFileOutputter
   end
 
   private
-
-  NUMBER_OF_COLUMNS = 3
-  BETWEEN_COLUMNS = 5
-
-  private_constant :NUMBER_OF_COLUMNS
-  private_constant :BETWEEN_COLUMNS
 
   def calc_number_of_rows
     (@file_names.size.to_f / NUMBER_OF_COLUMNS).ceil

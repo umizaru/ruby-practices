@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class DetailedFileOutputter
+  BETWEEN_DETAILS = 1
+  private_constant :BETWEEN_DETAILS
+
   def initialize(file_details)
     @file_details = file_details
   end
@@ -24,9 +27,6 @@ class DetailedFileOutputter
   end
 
   private
-
-  BETWEEN_DETAILS = 1
-  private_constant :BETWEEN_DETAILS
 
   def max_length_of
     {

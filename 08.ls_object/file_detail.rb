@@ -3,6 +3,18 @@
 require 'etc'
 
 class FileDetail
+  PERMISSION_CONVERSION_TABLE = {
+    '0' => '---',
+    '1' => '--x',
+    '2' => '-w-',
+    '3' => '-wx',
+    '4' => 'r--',
+    '5' => 'r-x',
+    '6' => 'rw-',
+    '7' => 'rwx'
+  }.freeze
+  private_constant :PERMISSION_CONVERSION_TABLE
+
   def initialize(file_name)
     @file_name = file_name
     @stat = File.stat(file_name)
@@ -52,20 +64,7 @@ class FileDetail
   end
 
   def permission_symbol
-    permission_number = @stat.mode.to_s(8).chars.last(3).join
+    permission_number = @stat.mode.to_s(8)[-3..]
     permission_number.gsub(/[0-7]/, PERMISSION_CONVERSION_TABLE)
   end
-
-  PERMISSION_CONVERSION_TABLE = {
-    '0' => '---',
-    '1' => '--x',
-    '2' => '-w-',
-    '3' => '-wx',
-    '4' => 'r--',
-    '5' => 'r-x',
-    '6' => 'rw-',
-    '7' => 'rwx'
-  }.freeze
-
-  private_constant :PERMISSION_CONVERSION_TABLE
 end
