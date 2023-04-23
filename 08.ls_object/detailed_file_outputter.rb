@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
-
 class DetailedFileOutputter
   def initialize(file_details)
     @file_details = file_details

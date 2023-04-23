@@ -13,7 +13,6 @@ class FileOutputter
     file_details = FileDetailRetriever.new(@options['a'], @options['r']).retrieve
     if @options['l']
       DetailedFileOutputter.new(file_details).output
-      binding.break
     else
       DefaultFileOutputter.new(file_details).output
     end

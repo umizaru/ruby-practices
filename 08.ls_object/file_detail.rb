@@ -9,14 +9,6 @@ class FileDetail
   end
 
   def type_and_permission
-    file_type_conversion_table = {
-      'file' => '-',
-      'dictionary' => 'd',
-      'link' => 'l'
-    }
-    file_type = file_type_conversion_table[@stat.ftype]
-    permission_number = @stat.mode.to_s(8).chars.last(3).join
-    permission_symbol = permission_number.gsub(/[0-7]/, PERMISSION_CONVERSION_TABLE)
     file_type + permission_symbol
   end
 
@@ -50,6 +42,20 @@ class FileDetail
 
   private
 
+  def file_type
+    file_type_conversion_table = {
+      'file' => '-',
+      'dictionary' => 'd',
+      'link' => 'l'
+    }
+    file_type_conversion_table[@stat.ftype]
+  end
+
+  def permission_symbol
+    permission_number = @stat.mode.to_s(8).chars.last(3).join
+    permission_number.gsub(/[0-7]/, PERMISSION_CONVERSION_TABLE)
+  end
+
   PERMISSION_CONVERSION_TABLE = {
     '0' => '---',
     '1' => '--x',
@@ -62,5 +68,4 @@ class FileDetail
   }.freeze
 
   private_constant :PERMISSION_CONVERSION_TABLE
-
 end
